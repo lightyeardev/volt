@@ -11,7 +11,6 @@ flutter pub add volt
 # Usage
 
 ```dart
-
 final usersQuery = VoltQuery(
   box: "users",
   source: () => fetch("https://jsonplaceholder.typicode.com/users"),

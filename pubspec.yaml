@@ -1,6 +1,6 @@
 name: volt
 description: "Simple, fast, effortless data fetching and real-time updates"
-version: 0.0.1
+version: 0.0.0
 homepage: https://github.com/lightyeardev/volt
 
 environment:

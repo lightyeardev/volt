@@ -18,7 +18,7 @@ final usersQuery = VoltQuery(
 );
 
 Widget build(BuildContext context) {
-  final users = useVoltQuery(usersQuery);
+  final users = useQuery(usersQuery);
 
   return users == null
       ? CircularProgressIndicator()

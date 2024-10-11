@@ -35,10 +35,9 @@ Widget build(BuildContext context) {
 ## Configuration
 
 ```dart
+final client = useMemoized(() => QueryClient( ... ));
 QueryClientProvider(
-  client: QueryClient(
-    ...
-  ),
+  client: client,
   child: MyApp(),
 );
 ```

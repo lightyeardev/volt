@@ -1,9 +1,30 @@
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:volt/src/query.dart';
+import 'package:volt/src/query_client_provider.dart';
 
+/// Listen to a query for data and return the result
+///
+/// This hook listens to a query and returns the result. The query is automatically
+/// run when the component is mounted, and the result is returned.
+///
+/// It returns data in the following order. When stateTime is shorter than the time the resource is
+/// cached, the data is returned from the cache then, the data is returned from the queryFn.
+///
+/// 1. Memory cache
+/// 2. Disk cache
+/// 3. From queryFn
 T? useQuery<T>(
   VoltQuery<T> query, {
   Duration? staleTime,
   bool enabled = true,
 }) {
-  return null;
+  final context = useContext();
+  final client = QueryClientProvider.of(context);
+
+  final stream = useMemoized(
+    () => !enabled ? const Stream.empty() : client.streamQuery(query, staleTime: staleTime),
+    [client, ...query.queryKey, staleTime, enabled],
+  );
+
+  return useStream(stream).data;
 }

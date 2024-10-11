@@ -4,7 +4,7 @@ import 'package:volt/src/query_client.dart';
 /// Provides a [QueryClient] to the widget tree.
 ///
 /// This is used to provide a [QueryClient] to the widget tree. This is useful
-/// for providing a [QueryClient] to the [useQuery] and [useQueries] hooks.
+/// for providing a [QueryClient] to the [useQuery] hook.
 class QueryClientProvider extends InheritedWidget {
   final QueryClient client;
 

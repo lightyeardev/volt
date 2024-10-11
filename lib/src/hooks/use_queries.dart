@@ -5,9 +5,10 @@ import 'package:volt/src/query.dart';
   VoltQuery<T1> query1,
   VoltQuery<T2> query2, {
   bool enabled = true,
+  Duration? staleTime,
 }) {
-  final r1 = useQuery(query1, enabled: enabled);
-  final r2 = useQuery(query2, enabled: enabled);
+  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
+  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
 
   if (r1 == null || r2 == null) {
     return null;
@@ -21,10 +22,11 @@ import 'package:volt/src/query.dart';
   VoltQuery<T2> query2,
   VoltQuery<T3> query3, {
   bool enabled = true,
+  Duration? staleTime,
 }) {
-  final r1 = useQuery(query1, enabled: enabled);
-  final r2 = useQuery(query2, enabled: enabled);
-  final r3 = useQuery(query3, enabled: enabled);
+  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
+  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
+  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
 
   if (r1 == null || r2 == null || r3 == null) {
     return null;
@@ -39,11 +41,12 @@ import 'package:volt/src/query.dart';
   VoltQuery<T3> query3,
   VoltQuery<T4> query4, {
   bool enabled = true,
+  Duration? staleTime,
 }) {
-  final r1 = useQuery(query1, enabled: enabled);
-  final r2 = useQuery(query2, enabled: enabled);
-  final r3 = useQuery(query3, enabled: enabled);
-  final r4 = useQuery(query4, enabled: enabled);
+  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
+  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
+  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
+  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
 
   if (r1 == null || r2 == null || r3 == null || r4 == null) {
     return null;
@@ -59,12 +62,13 @@ import 'package:volt/src/query.dart';
   VoltQuery<T4> query4,
   VoltQuery<T5> query5, {
   bool enabled = true,
+  Duration? staleTime,
 }) {
-  final r1 = useQuery(query1, enabled: enabled);
-  final r2 = useQuery(query2, enabled: enabled);
-  final r3 = useQuery(query3, enabled: enabled);
-  final r4 = useQuery(query4, enabled: enabled);
-  final r5 = useQuery(query5, enabled: enabled);
+  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
+  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
+  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
+  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
+  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
 
   if (r1 == null || r2 == null || r3 == null || r4 == null || r5 == null) {
     return null;
@@ -81,13 +85,14 @@ import 'package:volt/src/query.dart';
   VoltQuery<T5> query5,
   VoltQuery<T6> query6, {
   bool enabled = true,
+  Duration? staleTime,
 }) {
-  final r1 = useQuery(query1, enabled: enabled);
-  final r2 = useQuery(query2, enabled: enabled);
-  final r3 = useQuery(query3, enabled: enabled);
-  final r4 = useQuery(query4, enabled: enabled);
-  final r5 = useQuery(query5, enabled: enabled);
-  final r6 = useQuery(query6, enabled: enabled);
+  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
+  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
+  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
+  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
+  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
+  final r6 = useQuery(query6, enabled: enabled, staleTime: staleTime);
 
   if (r1 == null || r2 == null || r3 == null || r4 == null || r5 == null || r6 == null) {
     return null;
@@ -105,14 +110,15 @@ import 'package:volt/src/query.dart';
   VoltQuery<T6> query6,
   VoltQuery<T7> query7, {
   bool enabled = true,
+  Duration? staleTime,
 }) {
-  final r1 = useQuery(query1, enabled: enabled);
-  final r2 = useQuery(query2, enabled: enabled);
-  final r3 = useQuery(query3, enabled: enabled);
-  final r4 = useQuery(query4, enabled: enabled);
-  final r5 = useQuery(query5, enabled: enabled);
-  final r6 = useQuery(query6, enabled: enabled);
-  final r7 = useQuery(query7, enabled: enabled);
+  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
+  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
+  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
+  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
+  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
+  final r6 = useQuery(query6, enabled: enabled, staleTime: staleTime);
+  final r7 = useQuery(query7, enabled: enabled, staleTime: staleTime);
 
   if (r1 == null ||
       r2 == null ||
@@ -137,15 +143,16 @@ import 'package:volt/src/query.dart';
   VoltQuery<T7> query7,
   VoltQuery<T8> query8, {
   bool enabled = true,
+  Duration? staleTime,
 }) {
-  final r1 = useQuery(query1, enabled: enabled);
-  final r2 = useQuery(query2, enabled: enabled);
-  final r3 = useQuery(query3, enabled: enabled);
-  final r4 = useQuery(query4, enabled: enabled);
-  final r5 = useQuery(query5, enabled: enabled);
-  final r6 = useQuery(query6, enabled: enabled);
-  final r7 = useQuery(query7, enabled: enabled);
-  final r8 = useQuery(query8, enabled: enabled);
+  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
+  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
+  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
+  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
+  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
+  final r6 = useQuery(query6, enabled: enabled, staleTime: staleTime);
+  final r7 = useQuery(query7, enabled: enabled, staleTime: staleTime);
+  final r8 = useQuery(query8, enabled: enabled, staleTime: staleTime);
 
   if (r1 == null ||
       r2 == null ||
@@ -172,16 +179,17 @@ import 'package:volt/src/query.dart';
   VoltQuery<T8> query8,
   VoltQuery<T9> query9, {
   bool enabled = true,
+  Duration? staleTime,
 }) {
-  final r1 = useQuery(query1, enabled: enabled);
-  final r2 = useQuery(query2, enabled: enabled);
-  final r3 = useQuery(query3, enabled: enabled);
-  final r4 = useQuery(query4, enabled: enabled);
-  final r5 = useQuery(query5, enabled: enabled);
-  final r6 = useQuery(query6, enabled: enabled);
-  final r7 = useQuery(query7, enabled: enabled);
-  final r8 = useQuery(query8, enabled: enabled);
-  final r9 = useQuery(query9, enabled: enabled);
+  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
+  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
+  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
+  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
+  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
+  final r6 = useQuery(query6, enabled: enabled, staleTime: staleTime);
+  final r7 = useQuery(query7, enabled: enabled, staleTime: staleTime);
+  final r8 = useQuery(query8, enabled: enabled, staleTime: staleTime);
+  final r9 = useQuery(query9, enabled: enabled, staleTime: staleTime);
 
   if (r1 == null ||
       r2 == null ||

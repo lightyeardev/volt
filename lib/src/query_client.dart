@@ -1,10 +1,13 @@
+import 'package:volt/src/persister/disk_volt_persister.dart';
+import 'package:volt/src/persister/persister.dart';
 import 'package:volt/src/query.dart';
 
 class QueryClient {
   QueryClient({
     this.keyTransformer = _defaultKeyTransformer,
+    VoltPersistor? persistor,
     this.staleTime,
-  });
+  }) : persistor = persistor ?? FileVoltPersistor();
 
   /// Transforms the keys
   ///
@@ -16,6 +19,12 @@ class QueryClient {
   ///
   /// The time to keep the data in the cache before it is considered stale
   final Duration? staleTime;
+
+  /// The persistor to use for memory and disk caching
+  ///
+  /// This ships with a default [FileVoltPersistor] that persists to disk but can be overridden
+  /// with a custom implementation
+  final VoltPersistor persistor;
 
   Stream<T> streamQuery<T>(VoltQuery<T> query, {Duration? staleTime}) {
     return Stream.empty();

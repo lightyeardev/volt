@@ -16,10 +16,7 @@ class QueryClientProvider extends InheritedWidget {
 
   static QueryClient of(BuildContext context) {
     final provider = context.dependOnInheritedWidgetOfExactType<QueryClientProvider>();
-    if (provider == null) {
-      throw Exception('No QueryClientProvider found in context');
-    }
-    return provider.client;
+    return provider?.client ?? _defaultQueryClient;
   }
 
   @override
@@ -31,3 +28,5 @@ class QueryClientProvider extends InheritedWidget {
     return oldWidget.client != client;
   }
 }
+
+final _defaultQueryClient = QueryClient();

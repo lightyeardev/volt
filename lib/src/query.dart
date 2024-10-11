@@ -23,12 +23,36 @@ class VoltQuery<T> {
   ///
   /// This is useful for operations that take longer than a few milliseconds, and
   /// which would therefore risk skipping frames.
-  final bool useSelectCompute;
+  final bool useComputeIsolate;
+
+  /// Disables the disk cache for this query
+  ///
+  /// This is useful for queries that should not be persisted to disk
+  final bool disableDiskCache;
+
+  /// The scope to use for the query
+  ///
+  /// This is useful to segment the cache, for example by logged in vs logged out users
+  final String? scope;
+
+  /// The time to keep the data in the cache before it is considered stale
+  ///
+  /// When null the global default stale duration will be used
+  final Duration? staleDuration;
+
+  /// The duration to poll the query for
+  ///
+  /// When null the query will not be polled
+  final Duration? pollingDuration;
 
   const VoltQuery({
     required this.queryKey,
     required this.queryFn,
     required this.select,
-    this.useSelectCompute = false,
+    this.staleDuration,
+    this.useComputeIsolate = false,
+    this.disableDiskCache = false,
+    this.scope,
+    this.pollingDuration,
   });
 }

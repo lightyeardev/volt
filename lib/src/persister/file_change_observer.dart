@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:rxdart/rxdart.dart';
 
 class FileChangeObserver {
@@ -14,3 +12,5 @@ class FileChangeObserver {
     return listeners[fileName]!;
   }
 }
+
+abstract class Void {}

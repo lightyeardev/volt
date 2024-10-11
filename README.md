@@ -28,7 +28,7 @@ VoltQuery<Post> postQuery(String id) => VoltQuery(
 Widget build(BuildContext context) {
   final post = useQuery(postQuery("1"));
 
-  return post == null ? CircularProgressIndicator() : Text("Post: ${user.title}");
+  return post == null ? CircularProgressIndicator() : Text("Post: ${post.title}");
 }
 ```
 

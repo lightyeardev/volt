@@ -19,16 +19,16 @@ flutter pub add volt
 ## Usage
 
 ```dart
-VoltQuery<User> userQuery(String id) => VoltQuery(
-      queryKey: ["user", id],
-      queryFn: () => fetch("https://jsonplaceholder.typicode.com/users/$id"),
-      select: User.fromJson,
+VoltQuery<Post> postQuery(String id) => VoltQuery(
+      queryKey: ["post", id],
+      queryFn: () => fetch("https://jsonplaceholder.typicode.com/posts/$id"),
+      select: Post.fromJson,
     );
 
 Widget build(BuildContext context) {
-  final user = useQuery(userQuery("1"));
+  final post = useQuery(postQuery("1"));
 
-  return user == null ? CircularProgressIndicator() : Text("User: ${user.name}");
+  return post == null ? CircularProgressIndicator() : Text("Post: ${user.title}");
 }
 ```
 

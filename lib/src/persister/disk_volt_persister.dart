@@ -11,40 +11,33 @@ import 'package:volt/src/persister/file_change_observer.dart';
 import 'package:volt/src/persister/key_lock.dart';
 import 'package:volt/src/persister/lru_cache.dart';
 import 'package:volt/src/persister/persister.dart';
+import 'package:volt/src/query.dart';
 
 class FileVoltPersistor implements VoltPersistor {
   final FileChangeObserver observer = FileChangeObserver();
   final LruCache<String, HasData> cache = LruCache(
-    1,
     200,
-    (_) => 1,
     VoltStats.setMemoryCacheCurrentSize,
     VoltStats.incrementMemoryCacheEvictions,
   );
   static final lock = KeyedLock();
 
   @override
-  Stream<VoltPersistorResult<T>> listen<T>(
-    String key,
-    T Function(dynamic) deserialiser,
-    String? scope,
-    bool useCompute,
-    bool disableDiskCache,
-  ) {
-    final relativePath = _getRelativeFilePathWithFileName(key, scope);
+  Stream<VoltPersistorResult<T>> listen<T>(String key, VoltQuery<T> query) {
+    final relativePath = _getRelativeFilePathWithFileName(key, query.scope);
     return Rx.concat(
       [
         Stream.fromFuture(_readFile(
           relativePath,
-          scope,
-          deserialiser,
-          disableDiskCache,
+          query.scope,
+          query.select,
+          query.disableDiskCache,
         )),
         observer.watch(relativePath).asyncMap((value) => _readFile(
               relativePath,
-              scope,
-              deserialiser,
-              disableDiskCache,
+              query.scope,
+              query.select,
+              query.disableDiskCache,
               reportStats: false,
             )),
       ],
@@ -54,28 +47,26 @@ class FileVoltPersistor implements VoltPersistor {
   @override
   Future<bool> put<T>(
     String key,
+    VoltQuery<T> query,
     T dataObj,
     dynamic dataJson,
-    T Function(dynamic) deserialiser,
-    String? scope,
-    bool useCompute,
-    bool disableDiskCache,
   ) async {
     final timestamp = DateTime.now().toUtc();
-    final data = HasData(dataObj, timestamp, scope);
-    final relativePath = _getRelativeFilePathWithFileName(key, scope);
+    final data = HasData(dataObj, timestamp, query.scope);
+    final relativePath = _getRelativeFilePathWithFileName(key, query.scope);
 
     final record = (cache[relativePath], data);
-    final equals = useCompute ? await compute(_deepEquals, record) : _deepEquals(record);
+    final equals =
+        query.useComputeIsolate ? await compute(_deepEquals, record) : _deepEquals(record);
 
     cache[relativePath] = data;
 
     if (equals) {
-      unawaited(_writeMetadataFile(relativePath, data, disableDiskCache));
+      unawaited(_writeMetadataFile(relativePath, data, query.disableDiskCache));
       return false;
     }
 
-    unawaited(_writeFile<T>(relativePath, dataJson, data, disableDiskCache));
+    unawaited(_writeFile<T>(relativePath, dataJson, data, query.disableDiskCache));
     observer.onFileChanged(relativePath);
 
     return true;
@@ -185,7 +176,7 @@ class FileVoltPersistor implements VoltPersistor {
   }
 
   static String _getRelativeBucketPath(String? scope) {
-    return 'persister/${scope?.toLowerCase() ?? 'global'}/';
+    return 'persistor/${scope?.toLowerCase() ?? '_global'}/';
   }
 
   Future<void> clear(List<String?> scopes) async {

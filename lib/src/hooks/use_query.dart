@@ -18,7 +18,7 @@ T? useQuery<T>(
   final client = QueryClientProvider.of(context);
 
   final stream = useMemoized(
-    () => !enabled ? const Stream.empty() : client.streamQuery(query, staleTime: staleTime),
+    () => !enabled ? const Stream.empty() : client.streamQuery(query, staleDuration: staleTime),
     [client, ...query.queryKey, staleTime, enabled],
   );
 

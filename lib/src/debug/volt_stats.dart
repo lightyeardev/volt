@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 class VoltStats {
   static final ValueNotifier<VoltStats> _stats = ValueNotifier(const VoltStats());
-  
+
   final bool enabled;
 
   final int memoryCacheHits;
@@ -79,6 +79,14 @@ class VoltStats {
   }
 
   static ValueListenable<VoltStats> get listenable => _stats;
+
+  static void enable() {
+    _stats.value = _stats.value.copyWith(enabled: true);
+  }
+
+  static void disable() {
+    _stats.value = _stats.value.copyWith(enabled: false);
+  }
 
   static void incrementMemoryCacheHits() {
     if (!_stats.value.enabled) return;

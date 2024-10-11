@@ -1,20 +1,16 @@
+import 'package:volt/src/query.dart';
+
 abstract class VoltPersistor {
   Stream<VoltPersistorResult<T>> listen<T>(
     String key,
-    T Function(dynamic) deserialiser,
-    String? scope,
-      bool useCompute,
-      bool disableDiskCache,
+    VoltQuery<T> query,
   );
 
   Future<bool> put<T>(
     String key,
+    VoltQuery<T> query,
     T dataObj,
     dynamic data,
-    T Function(dynamic) deserialiser,
-    String? scope,
-      bool useCompute,
-      bool disableDiskCache,
   );
 }
 

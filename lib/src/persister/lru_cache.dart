@@ -5,20 +5,16 @@ class LruCache<K, V> {
   _Link<K, V>? _head;
   _Link<K, V>? _tail;
 
-  final int Function(V) _computeWeight;
   final void Function(int) _onSizeChanged;
   final void Function() _onEntryEvicted;
 
-  int _currentWeightTotal = 0;
-  final int _individualWeightMax;
-  final int _totalWeightMax;
+  int _currentItemsTotal = 0;
+  final int _totalMaxItems;
 
   final _entries = <K, _Link<K, V>>{};
 
   LruCache(
-    this._individualWeightMax,
-    this._totalWeightMax,
-    this._computeWeight,
+    this._totalMaxItems,
     this._onSizeChanged,
     this._onEntryEvicted,
   );
@@ -32,21 +28,18 @@ class LruCache<K, V> {
   }
 
   void operator []=(K key, V value) {
-    var entry = _Link(key, value, _computeWeight(value));
+    var entry = _Link(key, value, 1);
     // Don't cache at all if above the individual weight max.
-    if (entry.weight > _individualWeightMax) {
-      return;
-    }
 
     remove(key);
 
     _entries[key] = entry;
-    _currentWeightTotal += entry.weight;
+    _currentItemsTotal += entry.weight;
     _promote(entry);
 
-    _onSizeChanged(_currentWeightTotal);
+    _onSizeChanged(_currentItemsTotal);
 
-    while (_currentWeightTotal > _totalWeightMax) {
+    while (_currentItemsTotal > _totalMaxItems) {
       remove(_tail!.key);
       _onEntryEvicted();
     }
@@ -66,7 +59,7 @@ class LruCache<K, V> {
     var entry = _entries[key];
     if (entry == null) return null;
 
-    _currentWeightTotal -= entry.weight;
+    _currentItemsTotal -= entry.weight;
     _entries.remove(key);
 
     if (entry == _tail) {
@@ -79,19 +72,19 @@ class LruCache<K, V> {
       entry.remove();
     }
 
-    _onSizeChanged(_currentWeightTotal);
+    _onSizeChanged(_currentItemsTotal);
 
     return entry.value;
   }
 
   int get length => _entries.length;
 
-  int get maxLength => _totalWeightMax;
+  int get maxLength => _totalMaxItems;
 
   void evictAll() {
     _head = null;
     _tail = null;
-    _currentWeightTotal = 0;
+    _currentItemsTotal = 0;
     _entries.clear();
   }
 

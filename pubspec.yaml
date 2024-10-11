@@ -8,10 +8,14 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  collection: ^1.18.0
   crypto: ^3.0.5
   flutter:
     sdk: flutter
   flutter_hooks: ^0.20.5
+  path_provider: ^2.1.4
+  rxdart: ^0.28.0
+  synchronized: ^3.3.0+3
 
 dev_dependencies:
   flutter_test:

@@ -23,8 +23,8 @@ class FileVoltPersistor implements VoltPersistor {
   static final lock = KeyedLock();
 
   @override
-  Stream<VoltPersistorResult<T>> listen<T>(String key, VoltQuery<T> query) {
-    final relativePath = _getRelativeFilePathWithFileName(key, query.scope);
+  Stream<VoltPersistorResult<T>> listen<T>(String keyHash, VoltQuery<T> query) {
+    final relativePath = _getRelativeFilePathWithFileName(keyHash, query.scope);
     return Rx.concat(
       [
         Stream.fromFuture(_readFile(relativePath, query)),
@@ -37,14 +37,14 @@ class FileVoltPersistor implements VoltPersistor {
 
   @override
   Future<bool> put<T>(
-    String key,
+    String keyHash,
     VoltQuery<T> query,
     T dataObj,
     dynamic dataJson,
   ) async {
     final timestamp = DateTime.now().toUtc();
     final data = HasData(dataObj, timestamp, query.scope);
-    final relativePath = _getRelativeFilePathWithFileName(key, query.scope);
+    final relativePath = _getRelativeFilePathWithFileName(keyHash, query.scope);
 
     final record = (cache[relativePath], data);
     final useCompute = query.useComputeIsolate && !kDebugMode;

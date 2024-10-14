@@ -4,11 +4,15 @@ Effortlessly manage asynchronous data fetching, caching, and real-time data deli
 code.
 
 ## Features
-- In-memory caching for faster access to frequently used data
-- Persistent disk caching for offline support and reduced network calls
-- Query deduplication to prevent redundant requests for the same resource
-- Automatic data refetching & polling to keep resources up-to-date
-- Reactive data sharing, ensuring all listeners receive live updates
+- ⚡️ Blazing-fast development with minimal boilerplate code
+- 🚀 Fast in-memory caching for instant data access
+- 💾 Robust disk caching for seamless offline support
+- 🔄 Smart query deduplication to optimize network requests
+- 🔮 Configurable auto-refetching to keep data fresh
+- 📡 Real-time reactive updates across all listeners
+- 🧩 Easy integration with existing Flutter projects
+- 🧠 Compute isolate support for heavy deserialization tasks
+- 📦 Simple and compact package for efficient state management
 
 ## Install
 
@@ -36,10 +40,12 @@ Widget build(BuildContext context) {
 
 ```dart
 Widget build(BuildContext context) {
-  final client = useMemoized(() => QueryClient(...));
+  final queryClient = useMemoized(() => VoltQueryClient(
+    // configuration options
+  ));
   
-  return QueryClientProvider(
-    client: client,
+  return VoltQueryClientProvider(
+    client: queryClient,
     child: MyApp(),
   );
 }

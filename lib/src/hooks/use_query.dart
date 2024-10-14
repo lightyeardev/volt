@@ -15,7 +15,7 @@ T? useQuery<T>(
   bool enabled = true,
 }) {
   final context = useContext();
-  final client = QueryClientProvider.of(context);
+  final client = VoltQueryClientProvider.of(context);
 
   final stream = useMemoized(
     () => enabled ? client.streamQuery(query, staleDuration: staleTime) : const Stream.empty(),

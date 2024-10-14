@@ -11,11 +11,11 @@ import 'package:volt/src/persister/disk_volt_persister.dart';
 import 'package:volt/src/persister/persister.dart';
 import 'package:volt/src/query.dart';
 
-class QueryClient {
+class VoltQueryClient {
   static const _minRetrySecondDuration = 4;
   static const _maxRetrySecondDuration = Duration.secondsPerMinute * 5;
 
-  QueryClient({
+  VoltQueryClient({
     this.keyTransformer = _defaultKeyTransformer,
     VoltPersistor? persistor,
     this.staleDuration = const Duration(hours: 1),

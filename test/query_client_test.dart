@@ -73,7 +73,7 @@ void main() {
   });
 
   test(
-      'when select throws, it reloads the data from the queryFn without emitting an error',
+      'when select function throws an exception, streamQuery reloads data from queryFn without emitting an error',
       () async {
     final randomNumber = Random().nextInt(100);
     final client = MockQueryClient();

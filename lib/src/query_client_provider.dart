@@ -1,27 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:volt/src/query_client.dart';
 
-/// Provides a [QueryClient] to the widget tree.
+/// Provides a [VoltQueryClient] to the widget tree.
 ///
-/// This is used to provide a [QueryClient] to the widget tree. This is useful
-/// for providing a [QueryClient] to the [useQuery] hook.
-class QueryClientProvider extends InheritedWidget {
-  final QueryClient client;
+/// This is used to provide a [VoltQueryClient] to the widget tree. This is useful
+/// for providing a [VoltQueryClient] to the [useQuery] hook.
+class VoltQueryClientProvider extends InheritedWidget {
+  final VoltQueryClient client;
 
-  const QueryClientProvider({
+  const VoltQueryClientProvider({
     super.key,
     required this.client,
     required super.child,
   });
 
-  static QueryClient of(BuildContext context) {
-    final provider = context.dependOnInheritedWidgetOfExactType<QueryClientProvider>();
+  static VoltQueryClient of(BuildContext context) {
+    final provider = context.dependOnInheritedWidgetOfExactType<VoltQueryClientProvider>();
     return provider?.client ?? _defaultQueryClient;
   }
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-    if (oldWidget is! QueryClientProvider) {
+    if (oldWidget is! VoltQueryClientProvider) {
       return true;
     }
 
@@ -29,4 +29,4 @@ class QueryClientProvider extends InheritedWidget {
   }
 }
 
-final _defaultQueryClient = QueryClient();
+final _defaultQueryClient = VoltQueryClient();

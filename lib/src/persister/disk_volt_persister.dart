@@ -135,7 +135,7 @@ class FileVoltPersistor implements VoltPersistor {
       await metadataFile.create(recursive: true);
     }
     await metadataFile.writeAsString(jsonEncode({
-      'keys': query.queryKey,
+      'queryKey': query.queryKey,
       'timestamp': data.timestamp.toIso8601String(),
     }));
   }

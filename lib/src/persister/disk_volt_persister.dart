@@ -56,8 +56,8 @@ class FileVoltPersistor implements VoltPersistor {
     final relativePath = _getRelativeFilePathWithFileName(key, query.scope);
 
     final record = (cache[relativePath], data);
-    final equals =
-        query.useComputeIsolate ? await compute(_deepEquals, record) : _deepEquals(record);
+    final useCompute = query.useComputeIsolate && !kDebugMode;
+    final equals = useCompute ? await compute(_deepEquals, record) : _deepEquals(record);
 
     cache[relativePath] = data;
 

@@ -1,3 +1,9 @@
+## 0.0.2
+
+* Improved test coverage
+* Added more documentation
+* Renamed some classes
+
 ## 0.0.1
 
 * First usable release of `volt` package

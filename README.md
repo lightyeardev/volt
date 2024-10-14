@@ -13,6 +13,7 @@ code.
 - 🧩 Easy integration with existing Flutter projects
 - 🧠 Compute isolate support for heavy deserialization tasks
 - 📦 Simple and compact package for efficient state management
+- 🔒 Built-in error handling, auto recovery and retry mechanisms
 
 ## Install
 

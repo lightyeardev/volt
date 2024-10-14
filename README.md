@@ -4,6 +4,7 @@ Effortlessly manage asynchronous data fetching, caching, and real-time data deli
 code.
 
 ## Features
+
 - ⚡️ Blazing-fast development with minimal boilerplate code
 - 🚀 Fast in-memory caching for instant data access
 - 💾 Robust disk caching for seamless offline support
@@ -24,16 +25,16 @@ flutter pub add volt
 ## Usage
 
 ```dart
-VoltQuery<Post> postQuery(String id) => VoltQuery(
-      queryKey: ["post", id],
-      queryFn: () => fetch("https://jsonplaceholder.typicode.com/posts/$id"),
-      select: Post.fromJson,
+VoltQuery<Photo> photoQuery(String id) => VoltQuery(
+      queryKey: ["photo", id],
+      queryFn: () => fetch("https://jsonplaceholder.typicode.com/photos/$id"),
+      select: Photo.fromJson,
     );
 
 Widget build(BuildContext context) {
-  final post = useQuery(postQuery("1"));
+  final photo = useQuery(photoQuery("1"));
 
-  return post == null ? CircularProgressIndicator() : Text("Post: ${post.title}");
+  return photo == null ? CircularProgressIndicator() : Text("Photo: ${photo.title}");
 }
 ```
 
@@ -41,11 +42,11 @@ Widget build(BuildContext context) {
 
 ```dart
 Widget build(BuildContext context) {
-  final queryClient = useMemoized(() => VoltQueryClient(
+  final queryClient = useMemoized(() => QueryClient(
     // configuration options
   ));
-  
-  return VoltQueryClientProvider(
+
+  return QueryClientProvider(
     client: queryClient,
     child: MyApp(),
   );

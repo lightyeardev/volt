@@ -51,3 +51,7 @@ Widget build(BuildContext context) {
   );
 }
 ```
+
+## Credits
+
+Volt's public API design was inspired by [React Query](https://tanstack.com/query/latest), a popular data-fetching and state management library for React applications.

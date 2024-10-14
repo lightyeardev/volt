@@ -89,12 +89,26 @@ class QueryClient {
     );
   }
 
+  /// Prefetches and caches the result of a query.
+  ///
+  /// This method executes the given [query] and stores its result in the cache.
+  /// It's useful for preloading data that will be needed soon, improving the user experience
+  /// by reducing wait times.
   Future<bool> prefetchQuery<T>(VoltQuery<T> query) async {
     final key = _toStableKey(query);
 
     return await _sourceAndPersist(key, query) is! _Failure<T>;
   }
 
+  /// Fetches and caches the result of a query, throwing an error if the fetch fails.
+  ///
+  /// This method executes the given [query] and stores its result in the cache.
+  /// If the query fails, it will throw an error instead of returning a default value.
+  /// This is useful when you need to ensure that the data is successfully fetched,
+  /// and want to handle errors at the call site.
+  ///
+  /// Returns a [Future] that completes with the fetched data of type [T].
+  /// Throws an error if the fetch operation fails.
   Future<T> fetchQueryOrThrow<T>(VoltQuery<T> query) async {
     final key = _toStableKey(query);
 
@@ -102,6 +116,15 @@ class QueryClient {
     return data;
   }
 
+  /// Invalidates all queries within the specified scope.
+  ///
+  /// This method clears the cache for all queries associated with the given [scope].
+  /// If [scope] is null, it will invalidate all queries regardless of their scope.
+  ///
+  /// Use this method when you want to force a refresh of all data within a particular scope,
+  /// or when you want to clear all cached data if no scope is specified.
+  ///
+  /// Returns a [Future] that completes when the invalidation process is finished.
   Future<void> invalidateScope(String? scope) async {
     await persistor.clearScope(scope);
   }

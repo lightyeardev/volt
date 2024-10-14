@@ -27,19 +27,10 @@ class FileVoltPersistor implements VoltPersistor {
     final relativePath = _getRelativeFilePathWithFileName(key, query.scope);
     return Rx.concat(
       [
-        Stream.fromFuture(_readFile(
-          relativePath,
-          query.scope,
-          query.select,
-          query.disableDiskCache,
-        )),
-        observer.watch(relativePath).asyncMap((value) => _readFile(
-              relativePath,
-              query.scope,
-              query.select,
-              query.disableDiskCache,
-              reportStats: false,
-            )),
+        Stream.fromFuture(_readFile(relativePath, query)),
+        observer
+            .watch(relativePath)
+            .asyncMap((_) => _readFile(relativePath, query, reportStats: false)),
       ],
     );
   }
@@ -142,11 +133,13 @@ class FileVoltPersistor implements VoltPersistor {
 
   Future<VoltPersistorResult<T>> _readFile<T>(
     String relativePath,
-    String? scope,
-    T Function(dynamic) deserialiser,
-    bool disableDiskCache, {
+    VoltQuery query, {
     bool reportStats = true,
   }) async {
+    final scope = query.scope;
+    final deserialiser = query.select;
+    final disableDiskCache = query.disableDiskCache;
+
     return await lock.synchronized(relativePath, () async {
       final cachedItem = cache[relativePath];
       if (cachedItem != null) {

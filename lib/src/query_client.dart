@@ -160,7 +160,8 @@ class VoltQueryClient {
       // deserialize it before persisting it, in case source returns something unexpected
       final dynamic data;
       try {
-        data = query.useComputeIsolate ? await compute(query.select, json) : query.select(json);
+        final useCompute = query.useComputeIsolate && !kDebugMode;
+        data = useCompute ? await compute(query.select, json) : query.select(json);
       } catch (error, stackTrace) {
         VoltStats.incrementDeserializationErrors();
         if (isDebug) {

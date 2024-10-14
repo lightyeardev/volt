@@ -62,11 +62,26 @@ class FileVoltPersistor implements VoltPersistor {
     cache[relativePath] = data;
 
     if (equals) {
-      unawaited(_writeMetadataFile(relativePath, data, query.disableDiskCache));
+      unawaited(
+        _writeMetadataFile(
+          relativePath,
+          data,
+          query.disableDiskCache,
+          query,
+        ),
+      );
       return false;
     }
 
-    unawaited(_writeFile<T>(relativePath, dataJson, data, query.disableDiskCache));
+    unawaited(
+      _writeFile<T>(
+        relativePath,
+        dataJson,
+        data,
+        query.disableDiskCache,
+        query,
+      ),
+    );
     observer.onFileChanged(relativePath);
 
     return true;
@@ -80,6 +95,7 @@ class FileVoltPersistor implements VoltPersistor {
     Object? json,
     HasData<T> data,
     bool disableDiskCache,
+    VoltQuery query,
   ) async {
     if (disableDiskCache) {
       return;
@@ -95,12 +111,21 @@ class FileVoltPersistor implements VoltPersistor {
           .transform(const JsonEncoder().fuse(const Utf8Encoder()))
           .pipe(file.openWrite());
 
-      await _writeMetadataFile(relativePath, data, disableDiskCache);
+      await _writeMetadataFile(
+        relativePath,
+        data,
+        disableDiskCache,
+        query,
+      );
     });
   }
 
   Future<void> _writeMetadataFile(
-      String relativePath, HasData<dynamic> data, bool disableDiskCache) async {
+    String relativePath,
+    HasData<dynamic> data,
+    bool disableDiskCache,
+    VoltQuery query,
+  ) async {
     if (disableDiskCache) {
       return;
     }
@@ -110,6 +135,7 @@ class FileVoltPersistor implements VoltPersistor {
       await metadataFile.create(recursive: true);
     }
     await metadataFile.writeAsString(jsonEncode({
+      'keys': query.queryKey,
       'timestamp': data.timestamp.toIso8601String(),
     }));
   }

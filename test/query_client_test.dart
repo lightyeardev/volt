@@ -6,9 +6,7 @@ import 'package:volt/volt.dart';
 import 'mocks/mock_query_client.dart';
 
 void main() {
-  test(
-      'when cache is empty, streamQuery emits the result of the query function',
-      () async {
+  test('when cache is empty, streamQuery emits the result of the query function', () async {
     final randomNumber = Random().nextInt(100);
     final client = MockQueryClient();
     final query = VoltQuery(
@@ -44,9 +42,7 @@ void main() {
     );
   });
 
-  test(
-      'when cache is stale, streamQuery emits the result of the query function',
-      () async {
+  test('when cache is stale, streamQuery emits the result of the query function', () async {
     final randomNumber1 = Random().nextInt(10000);
     final randomNumber2 = Random().nextInt(10000);
     final client = MockQueryClient();
@@ -103,5 +99,47 @@ void main() {
 
     expect(selectCallCount, 2);
     expect(queryFnCallCount, 2);
+  });
+
+  test('invalidateScope clears the cache for the given scope', () async {
+    final client = MockQueryClient();
+    var result = 0;
+    final query = VoltQuery(
+      queryKey: ['test'],
+      queryFn: () async => result++,
+      select: (d) => d,
+      scope: 'scope1',
+    );
+
+    await client.prefetchQuery(query);
+    await client.invalidateScope('scope1');
+
+    final stream = client.streamQuery(query);
+
+    await expectLater(
+      stream,
+      emits(1),
+    );
+  });
+
+  test('invalidateScope does not clear the cache for a different scope', () async {
+    final client = MockQueryClient();
+    var result = 0;
+    final query = VoltQuery(
+      queryKey: ['test'],
+      queryFn: () async => result++,
+      select: (d) => d,
+      scope: 'scope1',
+    );
+
+    await client.prefetchQuery(query);
+    await client.invalidateScope('scope2');
+
+    final stream = client.streamQuery(query);
+
+    await expectLater(
+      stream,
+      emits(0),
+    );
   });
 }

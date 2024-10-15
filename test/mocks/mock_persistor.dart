@@ -23,4 +23,14 @@ class InMemoryPersistor extends VoltPersistor {
         .add(HasData<T>(dataObj, DateTime.now(), query.scope));
     return Future.value(true);
   }
+
+  @override
+  Future<void> clearScope(String? scope) async {
+    _cache.removeWhere((key, value) {
+      final result = value.hasValue ? value.value : null;
+      final itemScope = result is HasData ? result.scope : null;
+
+      return itemScope == scope;
+    });
+  }
 }

@@ -12,6 +12,8 @@ abstract class VoltPersistor {
     T dataObj,
     dynamic data,
   );
+
+  Future<void> clearScope(String? scope);
 }
 
 sealed class VoltPersistorResult<T> {}

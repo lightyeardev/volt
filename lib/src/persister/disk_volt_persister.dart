@@ -78,6 +78,12 @@ class FileVoltPersistor implements VoltPersistor {
     return true;
   }
 
+  @override
+  Future<void> clearScope(String? scope) async {
+    await _clearDirectory(scope);
+    _clearCache(scope);
+  }
+
   static bool _deepEquals<T>((Object?, T) record) =>
       const DeepCollectionEquality().equals(record.$1, record.$2);
 

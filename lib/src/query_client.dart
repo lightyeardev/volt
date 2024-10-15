@@ -11,11 +11,11 @@ import 'package:volt/src/persister/disk_volt_persister.dart';
 import 'package:volt/src/persister/persister.dart';
 import 'package:volt/src/query.dart';
 
-class VoltQueryClient {
+class QueryClient {
   static const _minRetrySecondDuration = 4;
   static const _maxRetrySecondDuration = Duration.secondsPerMinute * 5;
 
-  VoltQueryClient({
+  QueryClient({
     this.keyTransformer = _defaultKeyTransformer,
     VoltPersistor? persistor,
     this.staleDuration = const Duration(hours: 1),
@@ -51,6 +51,11 @@ class VoltQueryClient {
   final ConflateFuture _conflateFuture = ConflateFuture();
   final ConflateStream _conflateStream = ConflateStream();
 
+  /// Streams query results, managing caching, staleness, and polling.
+  ///
+  /// This method combines persisted data and polling streams, handling initial
+  /// and subsequent data emissions. It checks data staleness, fetches fresh data
+  /// when needed, and implements exponential backoff for failed requests.
   Stream<T> streamQuery<T>(VoltQuery<T> query, {Duration? staleDuration}) {
     int index = 0;
     final key = _toStableKey(query);
@@ -84,17 +89,44 @@ class VoltQueryClient {
     );
   }
 
+  /// Prefetches and caches the result of a query.
+  ///
+  /// This method executes the given [query] and stores its result in the cache.
+  /// It's useful for preloading data that will be needed soon, improving the user experience
+  /// by reducing wait times.
   Future<bool> prefetchQuery<T>(VoltQuery<T> query) async {
     final key = _toStableKey(query);
 
     return await _sourceAndPersist(key, query) is! _Failure<T>;
   }
 
+  /// Fetches and caches the result of a query, throwing an error if the fetch fails.
+  ///
+  /// This method executes the given [query] and stores its result in the cache.
+  /// If the query fails, it will throw an error instead of returning a default value.
+  /// This is useful when you need to ensure that the data is successfully fetched,
+  /// and want to handle errors at the call site.
+  ///
+  /// Returns a [Future] that completes with the fetched data of type [T].
+  /// Throws an error if the fetch operation fails.
   Future<T> fetchQueryOrThrow<T>(VoltQuery<T> query) async {
     final key = _toStableKey(query);
 
     final (data, _) = await _sourceAndPersistOrThrow(key, query);
     return data;
+  }
+
+  /// Invalidates all queries within the specified scope.
+  ///
+  /// This method clears the cache for all queries associated with the given [scope].
+  /// If [scope] is null, it will invalidate all queries regardless of their scope.
+  ///
+  /// Use this method when you want to force a refresh of all data within a particular scope,
+  /// or when you want to clear all cached data if no scope is specified.
+  ///
+  /// Returns a [Future] that completes when the invalidation process is finished.
+  Future<void> invalidateScope(String? scope) async {
+    await persistor.clearScope(scope);
   }
 
   Stream<T> _createPollingStream<T>(String key, VoltQuery<T> query) {

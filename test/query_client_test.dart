@@ -142,4 +142,132 @@ void main() {
       emits(0),
     );
   });
+
+  test('streamQuery handles network errors by retrying with backoff', () async {
+    final client = MockQueryClient();
+    int callCount = 0;
+    final query = VoltQuery<String>(
+      queryKey: ['test'],
+      queryFn: () async {
+        callCount++;
+        if (callCount < 2) {
+          throw Exception('Network error');
+        }
+        return 'Success';
+      },
+      select: (data) => data,
+    );
+
+    final stream = client.streamQuery(query);
+
+    await expectLater(
+      stream,
+      emitsInOrder([
+        'Success',
+      ]),
+    );
+
+    expect(callCount, 2);
+  });
+
+  test('fetchQueryOrThrow throws error on network failure', () async {
+    final client = MockQueryClient();
+    final query = VoltQuery<String>(
+      queryKey: ['test'],
+      queryFn: () async {
+        throw Exception('Network error');
+      },
+      select: (data) => data,
+    );
+
+    await expectLater(
+      () => client.fetchQueryOrThrow(query),
+      throwsException,
+    );
+  });
+
+  test('streamQuery handles select function errors gracefully', () async {
+    final client = MockQueryClient();
+    int callCount = 0;
+    final query = VoltQuery<String>(
+      queryKey: ['test'],
+      queryFn: () async {
+        callCount++;
+        return 'Success $callCount';
+      },
+      select: (data) {
+        if (callCount < 2) {
+          throw Exception('Select error');
+        }
+        return 'Processed $data';
+      },
+    );
+
+    final stream = client.streamQuery(query);
+
+    await expectLater(
+      stream,
+      emitsInOrder([
+        'Processed Success 2',
+      ]),
+    );
+
+    expect(callCount, 2);
+  });
+
+  test('queryFn is not called unnecessarily when multiple subscribers exist', () async {
+    final client = MockQueryClient();
+    int callCount = 0;
+    final query = VoltQuery<String>(
+      queryKey: ['test'],
+      queryFn: () async {
+        await Future.delayed(const Duration(milliseconds: 50));
+        callCount++;
+        return 'Success $callCount';
+      },
+      select: (data) => data,
+      staleDuration: Duration.zero,
+    );
+
+    final stream1 = client.streamQuery(query);
+    final stream2 = client.streamQuery(query);
+
+    await Future.wait([
+      expectLater(
+        stream1,
+        emits('Success 1'),
+      ),
+      expectLater(
+        stream2,
+        emits('Success 1'),
+      ),
+    ]);
+
+    expect(callCount, 1);
+  });
+
+  test('streamQuery respects polling interval', () async {
+    final client = MockQueryClient();
+    int callCount = 0;
+    final query = VoltQuery<String>(
+      queryKey: ['test'],
+      queryFn: () async {
+        callCount++;
+        return 'Success $callCount';
+      },
+      select: (data) => data,
+      pollingDuration: const Duration(milliseconds: 5),
+    );
+
+    final stream = client.streamQuery(query);
+
+    await expectLater(
+      stream,
+      emitsInOrder([
+        'Success 1',
+        'Success 2',
+        'Success 3',
+      ]),
+    );
+  });
 }

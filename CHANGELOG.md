@@ -1,6 +1,6 @@
 ## 0.0.3
 
-- Added `invalidateScope` method to `VoltQueryClient`
+- Added `invalidateScope` method to `QueryClient`
 
 ## 0.0.2
 

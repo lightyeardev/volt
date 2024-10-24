@@ -24,7 +24,8 @@ flutter pub add volt
 
 ## Usage
 
-### Query
+#### Query
+
 ```dart
 VoltQuery<Photo> photoQuery(String id) => VoltQuery(
       queryKey: ["photo", id],
@@ -39,7 +40,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-### Mutation
+#### Mutation
 
 ```dart
 VoltMutation<String> useDeletePhotoMutation() {
@@ -64,7 +65,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-## Configuration
+#### Configuration
 
 ```dart
 Widget build(BuildContext context) {

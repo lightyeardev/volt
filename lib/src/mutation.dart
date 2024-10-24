@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-class VoltMutation<D, P> {
-  final Future<bool> Function(P variables) mutationFn;
-  final void Function(P? variables)? onSuccess;
-  final void Function(P? variables)? onError;
+class VoltMutation<T> {
+  final Future<bool> Function(T params) mutationFn;
+  final void Function(T? params)? onSuccess;
+  final void Function(T? params)? onError;
   final ValueNotifier<bool> _isLoading;
 
   VoltMutation({
@@ -13,7 +13,7 @@ class VoltMutation<D, P> {
     required ValueNotifier<bool> isLoading,
   }) : _isLoading = isLoading;
 
-  Future<bool> mutate(P params) async {
+  Future<bool> mutate(T params) async {
     assert(_isLoading.value, 'Mutation is already in progress');
 
     if (_isLoading.value) return false;

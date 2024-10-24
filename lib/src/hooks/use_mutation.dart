@@ -5,10 +5,10 @@ import 'package:volt/src/mutation.dart';
 ///
 /// The mutation will automatically invalidate the given [invalidateQuery] if
 /// it is provided or the listeners can be used to invalidate queries manually.
-VoltMutation<D, P> useMutation<D, P>({
-  required Future<bool> Function(P params) mutationFn,
-  void Function(P? variables)? onSuccess,
-  void Function(P? variables)? onError,
+VoltMutation<T> useMutation<T>({
+  required Future<bool> Function(T params) mutationFn,
+  void Function(T? params)? onSuccess,
+  void Function(T? params)? onError,
 }) {
   final isLoading = useState(false);
 

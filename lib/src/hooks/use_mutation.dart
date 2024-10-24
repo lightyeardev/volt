@@ -3,8 +3,9 @@ import 'package:volt/src/mutation.dart';
 
 /// Creates a mutation for example to modify data on a server.
 ///
-/// The mutation will automatically invalidate the given [invalidateQuery] if
-/// it is provided or the listeners can be used to invalidate queries manually.
+/// The mutation does not automatically invalidate any queries. To invalidate queries,
+/// use the [useQueryClient] hook and call [QueryClient.prefetchQuery] in the
+/// [onSuccess] callback. This allows for manual and flexible query invalidation.
 VoltMutation<T> useMutation<T>({
   required Future<bool> Function(T params) mutationFn,
   void Function(T? params)? onSuccess,

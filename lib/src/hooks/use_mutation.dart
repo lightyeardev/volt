@@ -11,11 +11,11 @@ VoltMutation<T> useMutation<T>({
   void Function(T? params)? onSuccess,
   void Function(T? params)? onError,
 }) {
-  final isLoading = useState(false);
+  final state = useState(const VoltMutationState());
 
   return VoltMutation(
     mutationFn: mutationFn,
-    isLoading: isLoading,
+    state: state,
     onSuccess: onSuccess,
     onError: onError,
   );

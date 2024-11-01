@@ -2,41 +2,57 @@ import 'package:flutter/widgets.dart';
 
 class VoltMutation<T> {
   final Future<bool> Function(T params) mutationFn;
-  final void Function(T? params)? onSuccess;
-  final void Function(T? params)? onError;
-  final ValueNotifier<bool> _isLoading;
+  final void Function(T? params)? _onSuccess;
+  final void Function(T? params)? _onError;
+  final ValueNotifier<VoltMutationState> _state;
 
   VoltMutation({
     required this.mutationFn,
-    this.onSuccess,
-    this.onError,
-    required ValueNotifier<bool> isLoading,
-  }) : _isLoading = isLoading;
+    void Function(T?)? onSuccess,
+    void Function(T?)? onError,
+    required ValueNotifier<VoltMutationState> state,
+  })  : _onSuccess = onSuccess,
+        _onError = onError,
+        _state = state;
 
   Future<bool> mutate(T params) async {
-    assert(_isLoading.value, 'Mutation is already in progress');
+    assert(_state.value.isPending, 'Mutation is already in progress');
 
-    if (_isLoading.value) return false;
+    if (_state.value.isPending) return false;
 
-    _isLoading.value = true;
+    _state.value = VoltMutationState(isPending: true);
 
     try {
       final success = await mutationFn(params);
       if (success) {
-        onSuccess?.call(params);
+        _onSuccess?.call(params);
       } else {
-        onError?.call(params);
+        _onError?.call(params);
       }
+      _state.value = VoltMutationState(isPending: false, isSuccess: success);
       return success;
     } catch (error) {
-      onError?.call(params);
+      _state.value = VoltMutationState(isPending: false, isError: true);
+      _onError?.call(params);
       return false;
     } finally {
-      _isLoading.value = false;
+      _state.value = VoltMutationState(isPending: false);
     }
   }
 
-  bool get isLoading => _isLoading.value;
+  VoltMutationState get state => _state.value;
 
-  void reset() => _isLoading.value = false;
+  void reset() => _state.value = VoltMutationState(isPending: false);
+}
+
+class VoltMutationState {
+  final bool isPending;
+  final bool isSuccess;
+  final bool isError;
+
+  const VoltMutationState({
+    this.isPending = false,
+    this.isSuccess = false,
+    this.isError = false,
+  });
 }

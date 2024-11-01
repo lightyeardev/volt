@@ -20,7 +20,7 @@ class VoltMutation<T> {
 
     if (_state.value.isPending) return false;
 
-    _state.value = VoltMutationState(isPending: true);
+    _state.value = const VoltMutationState(isPending: true);
 
     try {
       final success = await mutationFn(params);
@@ -32,17 +32,17 @@ class VoltMutation<T> {
       _state.value = VoltMutationState(isPending: false, isSuccess: success);
       return success;
     } catch (error) {
-      _state.value = VoltMutationState(isPending: false, isError: true);
+      _state.value = const VoltMutationState(isPending: false, isError: true);
       _onError?.call(params);
       return false;
     } finally {
-      _state.value = VoltMutationState(isPending: false);
+      _state.value = const VoltMutationState(isPending: false);
     }
   }
 
   VoltMutationState get state => _state.value;
 
-  void reset() => _state.value = VoltMutationState(isPending: false);
+  void reset() => _state.value = const VoltMutationState(isPending: false);
 }
 
 class VoltMutationState {

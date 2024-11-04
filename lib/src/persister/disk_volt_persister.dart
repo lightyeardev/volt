@@ -6,21 +6,25 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:volt/src/debug/volt_stats.dart';
 import 'package:volt/src/persister/file_change_observer.dart';
 import 'package:volt/src/persister/key_lock.dart';
 import 'package:volt/src/persister/lru_cache.dart';
 import 'package:volt/src/persister/persister.dart';
 import 'package:volt/src/query.dart';
+import 'package:volt/src/volt_listener.dart';
 
 class FileVoltPersistor implements VoltPersistor {
   final FileChangeObserver observer = FileChangeObserver();
-  final LruCache<String, HasData> cache = LruCache(
+  final VoltListener? listener;
+  late final LruCache<String, HasData> cache = LruCache(
     200,
-    VoltStats.setMemoryCacheCurrentSize,
-    VoltStats.incrementMemoryCacheEvictions,
+    listener?.onMemoryCacheSizeChanged,
+    listener?.onMemoryCacheEviction,
   );
   static final lock = KeyedLock();
+  FileVoltPersistor({
+    this.listener,
+  });
 
   @override
   Stream<VoltPersistorResult<T>> listen<T>(String keyHash, VoltQuery<T> query) {
@@ -149,10 +153,10 @@ class FileVoltPersistor implements VoltPersistor {
     return await lock.synchronized(relativePath, () async {
       final cachedItem = cache[relativePath];
       if (cachedItem != null) {
-        if (reportStats) VoltStats.incrementMemoryCacheHits();
+        if (reportStats) listener?.onMemoryCacheHit();
         return cachedItem as HasData<T>;
       }
-      if (reportStats) VoltStats.incrementMemoryCacheMisses();
+      if (reportStats) listener?.onMemoryCacheMiss();
 
       if (disableDiskCache) {
         return NoData();
@@ -162,10 +166,10 @@ class FileVoltPersistor implements VoltPersistor {
       final metadataFile = await _getFile(relativePath, 'metadata');
       try {
         if (!(await dataFile.exists())) {
-          if (reportStats) VoltStats.incrementDiskCacheMisses();
+          if (reportStats) listener?.onDiskCacheMiss();
           return NoData();
         }
-        if (reportStats) VoltStats.incrementDiskCacheHits();
+        if (reportStats) listener?.onDiskCacheHit();
 
         final dynamicData = (await dataFile
             .openRead()

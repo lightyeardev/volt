@@ -1,6 +1,6 @@
 library volt;
 
-export 'src/debug/volt_stats.dart';
+export 'src/volt_listener.dart';
 export 'src/hooks/use_queries.dart';
 export 'src/hooks/use_query.dart';
 export 'src/hooks/use_query_client.dart';

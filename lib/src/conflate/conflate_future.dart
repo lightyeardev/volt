@@ -1,12 +1,16 @@
 import 'dart:async';
 
 import 'package:rxdart/rxdart.dart';
-import 'package:volt/src/debug/volt_stats.dart';
+import 'package:volt/src/volt_listener.dart';
 
 class ConflateFuture {
   static final Map<String, BehaviorSubject<dynamic>> _subjects = {};
 
-  Future<dynamic> conflateByKey(String key, Future<dynamic> Function() source) {
+  Future<dynamic> conflateByKey(
+    String key,
+    Future<dynamic> Function() source,
+    VoltListener? listener,
+  ) {
     bool conflated = true;
     final subject = _subjects.putIfAbsent(
       key,
@@ -22,7 +26,7 @@ class ConflateFuture {
     );
 
     if (conflated) {
-      VoltStats.incrementConflatedRequests();
+      listener?.onRequestConflated();
     }
 
     return subject.first;

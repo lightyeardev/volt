@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:volt/src/debug/volt_stats.dart';
+import 'package:volt/src/volt_listener.dart';
 
 class ConflateStream {
   static final Map<String, _StreamWrapper> _streams = {};
@@ -8,6 +8,7 @@ class ConflateStream {
   Stream<T> conflateByKey<T>(
     String key,
     StreamSubscription Function() createStream,
+    VoltListener? listener,
   ) {
     late final StreamController<T> controller;
     controller = StreamController<T>(
@@ -24,7 +25,7 @@ class ConflateStream {
         );
 
         if (conflated) {
-          VoltStats.incrementConflatedRequests();
+          listener?.onRequestConflated();
         }
 
         wrapper.subscribed.add(controller);

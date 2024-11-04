@@ -6,10 +6,10 @@ import 'package:rxdart/rxdart.dart';
 import 'package:volt/src/conflate/conflate_future.dart';
 import 'package:volt/src/conflate/conflate_stream.dart';
 import 'package:volt/src/debug/logger.dart';
-import 'package:volt/src/debug/volt_stats.dart';
 import 'package:volt/src/persister/disk_volt_persister.dart';
 import 'package:volt/src/persister/persister.dart';
 import 'package:volt/src/query.dart';
+import 'package:volt/src/volt_listener.dart';
 
 class QueryClient {
   static const _minRetrySecondDuration = 4;
@@ -20,12 +20,9 @@ class QueryClient {
     VoltPersistor? persistor,
     this.staleDuration = const Duration(hours: 1),
     this.isDebug = false,
+    this.listener,
   })  : persistor = persistor ?? FileVoltPersistor(),
-        _logger = isDebug ? const StdOutLogger() : const NoOpLogger() {
-    if (isDebug) {
-      VoltStats.enable();
-    }
-  }
+        _logger = isDebug ? const StdOutLogger() : const NoOpLogger();
 
   /// Transforms the keys
   ///
@@ -43,6 +40,11 @@ class QueryClient {
   /// This ships with a default [FileVoltPersistor] that persists to disk but can be overridden
   /// with a custom implementation
   final VoltPersistor persistor;
+
+  /// A listener for query events
+  ///
+  /// This is useful for debugging and tracking the cache hit rate, miss rate, etc.
+  final VoltListener? listener;
 
   /// Whether to use debug mode for extra logging and stats
   final bool isDebug;
@@ -139,6 +141,7 @@ class QueryClient {
       () => Stream.periodic(pollingDuration)
           .switchMap((value) => _sourceAndPersist(key, query).asStream())
           .listen(null),
+      listener,
     );
   }
 
@@ -174,7 +177,7 @@ class QueryClient {
       final (data, persisted) = await _sourceAndPersistOrThrow(key, query);
       return persisted ? _Success(data) : _NoChange();
     } catch (e, stackTrace) {
-      VoltStats.incrementNetworkMisses();
+      listener?.onNetworkError();
       if (kDebugMode) {
         _logger.logInfo(
           'Failed to fetch from queryFn: $key',
@@ -186,27 +189,32 @@ class QueryClient {
   }
 
   Future<(T, bool)> _sourceAndPersistOrThrow<T>(String key, VoltQuery<T> query) async {
-    return await _conflateFuture.conflateByKey(key, () async {
-      var json = await query.queryFn();
-      VoltStats.incrementNetworkHits();
-      // deserialize it before persisting it, in case source returns something unexpected
-      final dynamic data;
-      try {
-        final useCompute = query.useComputeIsolate && !kDebugMode;
-        data = useCompute ? await compute(query.select, json) : query.select(json);
-      } catch (error, stackTrace) {
-        VoltStats.incrementDeserializationErrors();
-        if (isDebug) {
-          _logger.logInfo('Failed to deserialize data from source: $json', stackTrace: stackTrace);
-        } else {
-          _logger.logInfo(error, stackTrace: stackTrace);
+    return await _conflateFuture.conflateByKey(
+      key,
+      () async {
+        var json = await query.queryFn();
+        listener?.onNetworkHit();
+        // deserialize it before persisting it, in case source returns something unexpected
+        final dynamic data;
+        try {
+          final useCompute = query.useComputeIsolate && !kDebugMode;
+          data = useCompute ? await compute(query.select, json) : query.select(json);
+        } catch (error, stackTrace) {
+          listener?.onDeserializationError();
+          if (isDebug) {
+            _logger.logInfo('Failed to deserialize data from source: $json',
+                stackTrace: stackTrace);
+          } else {
+            _logger.logInfo(error, stackTrace: stackTrace);
+          }
+          rethrow;
         }
-        rethrow;
-      }
 
-      final persisted = await persistor.put<T>(key, query, data as T, json);
-      return (data, persisted);
-    });
+        final persisted = await persistor.put<T>(key, query, data as T, json);
+        return (data, persisted);
+      },
+      listener,
+    );
   }
 
   String _toStableKey<T>(VoltQuery<T> query) =>

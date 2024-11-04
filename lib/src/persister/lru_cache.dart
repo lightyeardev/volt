@@ -5,8 +5,8 @@ class LruCache<K, V> {
   _Link<K, V>? _head;
   _Link<K, V>? _tail;
 
-  final void Function(int) _onSizeChanged;
-  final void Function() _onEntryEvicted;
+  final void Function(int)? _onSizeChanged;
+  final void Function()? _onEntryEvicted;
 
   int _currentItemsTotal = 0;
   final int _totalMaxItems;
@@ -37,11 +37,11 @@ class LruCache<K, V> {
     _currentItemsTotal += entry.weight;
     _promote(entry);
 
-    _onSizeChanged(_currentItemsTotal);
+    _onSizeChanged?.call(_currentItemsTotal);
 
     while (_currentItemsTotal > _totalMaxItems) {
       remove(_tail!.key);
-      _onEntryEvicted();
+      _onEntryEvicted?.call();
     }
   }
 
@@ -72,7 +72,7 @@ class LruCache<K, V> {
       entry.remove();
     }
 
-    _onSizeChanged(_currentItemsTotal);
+    _onSizeChanged?.call(_currentItemsTotal);
 
     return entry.value;
   }

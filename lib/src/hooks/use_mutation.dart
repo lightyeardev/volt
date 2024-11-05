@@ -6,7 +6,7 @@ import 'package:volt/src/mutation.dart';
 /// The mutation does not automatically invalidate any queries. To invalidate queries,
 /// use the [useQueryClient] hook and call [QueryClient.prefetchQuery] in the
 /// [onSuccess] callback. This allows for manual and flexible query invalidation.
-VoltMutation<T> useMutation<T>({
+VoltMutation<T> useMutationState<T>({
   required Future<bool> Function(T params) mutationFn,
   void Function(T? params)? onSuccess,
   void Function(T? params)? onError,

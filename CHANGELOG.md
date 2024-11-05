@@ -1,6 +1,7 @@
 ## 0.0.4
 
-- Added `useMutation` hook
+- Added `useMutationState` hook
+
 ## 0.0.3
 
 - Added `invalidateScope` method to `QueryClient`

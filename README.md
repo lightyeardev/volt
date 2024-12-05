@@ -24,21 +24,50 @@ flutter pub add volt
 
 ## Usage
 
+#### Query
+
 ```dart
 VoltQuery<Photo> photoQuery(String id) => VoltQuery(
-      queryKey: ["photo", id],
-      queryFn: () => fetch("https://jsonplaceholder.typicode.com/photos/$id"),
+      queryKey: ['photo', id],
+      queryFn: () => fetch('https://jsonplaceholder.typicode.com/photos/$id'),
       select: Photo.fromJson,
     );
 
 Widget build(BuildContext context) {
-  final photo = useQuery(photoQuery("1"));
+  final photo = useQuery(photoQuery('1'));
 
-  return photo == null ? CircularProgressIndicator() : Text("Photo: ${photo.title}");
+  return photo == null ? CircularProgressIndicator() : Text('Photo: ${photo.title}');
 }
 ```
 
-## Configuration
+#### Mutation
+
+```dart
+VoltMutation<String> useDeletePhotoMutation() {
+  final queryClient = useQueryClient();
+
+  return useMutation(
+    mutationFn: (photoId) => fetch(
+      'https://jsonplaceholder.typicode.com/photos/$photoId',
+      method: 'DELETE',
+    ),
+    onSuccess: (photoId) => queryClient.prefetchQuery(photoQuery(photoId)),
+  );
+}
+
+Widget build(BuildContext context) {
+  final deletePhotoMutation = useDeletePhotoMutation();
+
+  return deletePhotoMutation.state.isLoading
+      ? const CircularProgressIndicator()
+      : ElevatedButton(
+          onPressed: () => deletePhotoMutation.mutate('1'),
+          child: const Text('Delete Photo'),
+  );
+}
+```
+
+#### Configuration
 
 ```dart
 Widget build(BuildContext context) {

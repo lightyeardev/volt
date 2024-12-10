@@ -10,16 +10,18 @@ import 'package:volt/src/query_client_provider.dart';
 /// 1. Cached data (if available and even if stale)
 /// 2. Fresh data fetched from the `queryFn` if stale or not cached
 T? useQuery<T>(
-  VoltQuery<T> query, {
+  VoltQuery<T>? query, {
   Duration? staleTime,
   bool enabled = true,
 }) {
   final context = useContext();
   final client = QueryClientProvider.of(context);
 
+  final enabledQuery = query != null && enabled;
+
   final stream = useMemoized(
-    () => enabled ? client.streamQuery(query, staleDuration: staleTime) : const Stream.empty(),
-    [client, ...query.queryKey, staleTime, enabled],
+    () => enabledQuery ? client.streamQuery(query, staleDuration: staleTime) : const Stream.empty(),
+    [client, ...query?.queryKey ?? [], staleTime, enabledQuery],
   );
 
   return useStream(stream).data;

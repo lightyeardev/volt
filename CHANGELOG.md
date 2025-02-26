@@ -1,3 +1,7 @@
+## 0.0.5
+
+- Add `skipToken`
+
 ## 0.0.4
 
 - Added `useMutationState` hook

@@ -7,7 +7,7 @@ class VoltQuery<T> {
   /// The key to use for the query
   ///
   /// This is used to determine if the query is already in the cache
-  final List<String> queryKey;
+  final List<String?> queryKey;
 
   /// The function to run the query
   ///

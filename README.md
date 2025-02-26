@@ -100,8 +100,12 @@ VoltQuery<Photos> photosQuery(Account? account) =>
       select: Photos.fromJson,
     );
 
-final account = useQuery(accountQuery);
-final photos = useQuery(photosQuery(account));
+Widget build(BuildContext context) {
+  final account = useQuery(accountQuery);
+  final photos = useQuery(photosQuery(account));
+
+  ...
+}
 ```
 
 ## Credits

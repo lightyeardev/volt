@@ -218,7 +218,7 @@ class QueryClient {
   }
 
   String _toStableKey<T>(VoltQuery<T> query) =>
-      sha256.convert(utf8.encode(keyTransformer(query.queryKey).join(','))).toString();
+      sha256.convert(utf8.encode(keyTransformer(query.queryKey.map((e) => e ?? '').toList()).join(','))).toString();
 }
 
 sealed class _VoltResult<S> {

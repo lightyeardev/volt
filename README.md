@@ -82,6 +82,28 @@ Widget build(BuildContext context) {
 }
 ```
 
+#### Query dependencies (with skipToken)
+
+```dart
+final accountQuery = VoltQuery(
+  queryKey: ['account'],
+  queryFn: () async => fetch('https://jsonplaceholder.typicode.com/account/1'),
+  select: Account.fromJson,
+);
+
+VoltQuery<Photos> photosQuery(Account? account) =>
+    VoltQuery(
+      queryKey: ['photos', account?.id],
+      queryFn: account == null
+          ? skipToken
+          : () async => fetch('https://jsonplaceholder.typicode.com/account/${account.id}/photos/'),
+      select: Photos.fromJson,
+    );
+
+final account = useQuery(accountQuery);
+final photos = useQuery(photosQuery(account));
+```
+
 ## Credits
 
 Volt's public API design was inspired by [React Query](https://tanstack.com/query/latest), a popular data-fetching and state management library for React applications.

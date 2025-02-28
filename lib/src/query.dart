@@ -12,7 +12,7 @@ class VoltQuery<T> {
   /// The function to run the query
   ///
   /// This is the function that will be run to get the data for the query, generally a HTTP request
-  final Future<dynamic> Function() queryFn;
+  final Future<dynamic> Function()? queryFn;
 
   /// The function to select the data from the query
   ///

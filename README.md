@@ -82,7 +82,9 @@ Widget build(BuildContext context) {
 }
 ```
 
-#### Query dependencies (with skipToken)
+#### Query dependencies
+
+A `null` queryFn acts the same as `enabled: false`
 
 ```dart
 final accountQuery = VoltQuery(
@@ -95,7 +97,7 @@ VoltQuery<Photos> photosQuery(Account? account) =>
     VoltQuery(
       queryKey: ['photos', account?.id],
       queryFn: account == null
-          ? skipToken
+          ? null
           : () async => fetch('https://jsonplaceholder.typicode.com/account/${account.id}/photos/'),
       select: Photos.fromJson,
     );
@@ -107,6 +109,10 @@ Widget build(BuildContext context) {
   ...
 }
 ```
+
+## API stability
+
+Volt's public API is not stable and may undergo breaking changes until version 1.0.0 is released.
 
 ## Credits
 

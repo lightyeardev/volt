@@ -1,7 +1,6 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:volt/src/query.dart';
 import 'package:volt/src/query_client_provider.dart';
-import 'package:volt/src/util.dart';
 
 /// Listens to a query and returns the result data
 ///
@@ -17,7 +16,7 @@ T? useQuery<T>(
 }) {
   final context = useContext();
   final client = QueryClientProvider.of(context);
-  final enabledQuery = enabled && !identical(query.queryFn, skipToken);
+  final enabledQuery = enabled && query.queryFn != null;
   
   final stream = useMemoized(
     () => enabledQuery

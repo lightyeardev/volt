@@ -192,7 +192,7 @@ class QueryClient {
     return await _conflateFuture.conflateByKey(
       key,
       () async {
-        var json = await query.queryFn();
+        var json = await query.queryFn!();
         listener?.onNetworkHit();
         // deserialize it before persisting it, in case source returns something unexpected
         final dynamic data;

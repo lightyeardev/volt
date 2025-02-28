@@ -10,4 +10,3 @@ export 'src/persister/persister.dart';
 export 'src/query.dart';
 export 'src/query_client.dart';
 export 'src/query_client_provider.dart';
-export 'src/util.dart';

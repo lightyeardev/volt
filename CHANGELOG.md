@@ -1,3 +1,7 @@
+## 0.0.6
+
+- Fix `skipToken` auto boxing issue
+
 ## 0.0.5
 
 - Add `skipToken`

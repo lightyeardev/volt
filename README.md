@@ -24,7 +24,7 @@ flutter pub add volt
 
 ## Usage
 
-#### Query
+#### Listening to a query
 
 ```dart
 VoltQuery<Photo> photoQuery(String id) => VoltQuery(
@@ -40,29 +40,20 @@ Widget build(BuildContext context) {
 }
 ```
 
-#### Mutation
+#### Query prefetching
 
 ```dart
-VoltMutation<String> useDeletePhotoMutation() {
-  final queryClient = useQueryClient();
-
-  return useMutation(
-    mutationFn: (photoId) => fetch(
-      'https://jsonplaceholder.typicode.com/photos/$photoId',
-      method: 'DELETE',
-    ),
-    onSuccess: (photoId) => queryClient.prefetchQuery(photoQuery(photoId)),
-  );
+Future<void> deletePhoto(QueryClient queryClient, String id) async {
+  await fetch('https://jsonplaceholder.typicode.com/photos/$id', method: 'DELETE');
+  await queryClient.prefetchQuery(photoQuery(id));
 }
 
 Widget build(BuildContext context) {
-  final deletePhotoMutation = useDeletePhotoMutation();
+  final queryClient = useQueryClient();
 
-  return deletePhotoMutation.state.isLoading
-      ? const CircularProgressIndicator()
-      : ElevatedButton(
-          onPressed: () => deletePhotoMutation.mutate('1'),
-          child: const Text('Delete Photo'),
+  return ElevatedButton(
+    onPressed: () => deletePhoto(queryClient, '1'),
+    child: const Text('Delete Photo'),
   );
 }
 ```
@@ -72,7 +63,11 @@ Widget build(BuildContext context) {
 ```dart
 Widget build(BuildContext context) {
   final queryClient = useMemoized(() => QueryClient(
-    // configuration options
+    keyTransformer: // useful to add environment and locale specific keys to the query
+    persistor: // custom persistor for caching
+    staleDuration: // default stale duration for queries
+    isDebug: // enable debug logs
+    listener: // custom event listener to volt state changes globally
   ));
 
   return QueryClientProvider(

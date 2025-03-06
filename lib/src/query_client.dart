@@ -21,7 +21,7 @@ class QueryClient {
     this.staleDuration = const Duration(hours: 1),
     this.isDebug = false,
     this.listener,
-  })  : persistor = persistor ?? FileVoltPersistor(),
+  })  : persistor = persistor ?? FileVoltPersistor(listener: listener),
         _logger = isDebug ? const StdOutLogger() : const NoOpLogger();
 
   /// Transforms the keys

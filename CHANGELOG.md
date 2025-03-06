@@ -1,3 +1,5 @@
+## 0.0.8
+
 ## 0.0.7
 
 - Fix listener not being passed in to the persister

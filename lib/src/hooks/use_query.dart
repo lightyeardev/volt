@@ -25,7 +25,7 @@ T? useQuery<T>(
       final inMemoryData = client.persistor.peak(client.toStableKey(query), query);
       final stream = client
           .streamQuery(query, staleDuration: staleTime)
-          .where((data) => !identical(data, inMemoryData));
+          .where((data) => inMemoryData == null || !identical(data, inMemoryData));
       return (stream, inMemoryData);
     },
     [client, ...query.queryKey, staleTime, enabledQuery],

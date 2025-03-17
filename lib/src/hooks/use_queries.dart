@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:volt/src/hooks/use_lifecycle_aware_stream.dart';
 import 'package:volt/volt.dart';
 
 List<T>? useQueries<T>(
@@ -35,7 +36,7 @@ List<T>? useQueries<T>(
     [client, ...queryKeys, staleTime, enabledQuery],
   );
 
-  return useStream(stream, initialData: initialData).data;
+  return useLifecycleAwareStream(stream, initialData: initialData);
 }
 
 (T1, T2)? useQueries2<T1, T2>(

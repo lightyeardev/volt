@@ -1,5 +1,6 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:volt/src/hooks/use_lifecycle_aware_stream.dart';
 import 'package:volt/src/persister/persister.dart';
 import 'package:volt/src/query.dart';
 import 'package:volt/src/query_client_provider.dart';
@@ -34,5 +35,5 @@ T? useQuery<T>(
     [client, ...query.queryKey, staleTime, enabledQuery],
   );
 
-  return useStream(stream, initialData: initialData).data;
+  return useLifecycleAwareStream(stream, initialData: initialData);
 }

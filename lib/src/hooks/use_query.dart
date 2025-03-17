@@ -18,17 +18,20 @@ T? useQuery<T>(
   final client = QueryClientProvider.of(context);
   final enabledQuery = enabled && query.queryFn != null;
 
-  final stableKey = client.toStableKey(query);
-  final inMemoryData = client.persistor.peak(stableKey, query);
-
-  final stream = useMemoized(
-    () => enabledQuery
-        ? client
+  final (stream, initialData) = useMemoized(
+    () {
+      final inMemoryData = client.persistor.peak(client.toStableKey(query), query);
+      if (enabledQuery) {
+        final stream = client
             .streamQuery(query, staleDuration: staleTime)
-            .where((data) => !identical(data, inMemoryData))
-        : const Stream.empty(),
+            .where((data) => !identical(data, inMemoryData));
+        return (stream, inMemoryData);
+      } else {
+        return (const Stream.empty(), null);
+      }
+    },
     [client, ...query.queryKey, staleTime, enabledQuery],
   );
 
-  return useStream(stream, initialData: inMemoryData).data;
+  return useStream(stream, initialData: initialData).data;
 }

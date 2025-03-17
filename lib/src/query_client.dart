@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:volt/src/conflate/conflate_future.dart';
@@ -6,7 +9,6 @@ import 'package:volt/src/debug/logger.dart';
 import 'package:volt/src/persister/disk_volt_persister.dart';
 import 'package:volt/src/persister/persister.dart';
 import 'package:volt/src/query.dart';
-import 'package:volt/src/utils.dart';
 import 'package:volt/src/volt_listener.dart';
 
 class QueryClient {
@@ -58,7 +60,7 @@ class QueryClient {
   /// when needed, and implements exponential backoff for failed requests.
   Stream<T> streamQuery<T>(VoltQuery<T> query, {Duration? staleDuration}) {
     int index = 0;
-    final key = toStableKey(query, keyTransformer);
+    final key = toStableKey(query);
     final threshold = staleDuration ?? query.staleDuration ?? this.staleDuration;
 
     return Rx.merge(
@@ -95,7 +97,7 @@ class QueryClient {
   /// It's useful for preloading data that will be needed soon, improving the user experience
   /// by reducing wait times.
   Future<bool> prefetchQuery<T>(VoltQuery<T> query) async {
-    final key = toStableKey(query, keyTransformer);
+    final key = toStableKey(query);
 
     return await _sourceAndPersist(key, query) is! _Failure<T>;
   }
@@ -110,7 +112,7 @@ class QueryClient {
   /// Returns a [Future] that completes with the fetched data of type [T].
   /// Throws an error if the fetch operation fails.
   Future<T> fetchQueryOrThrow<T>(VoltQuery<T> query) async {
-    final key = toStableKey(query, keyTransformer);
+    final key = toStableKey(query);
 
     final (data, _) = await _sourceAndPersistOrThrow(key, query);
     return data;
@@ -213,6 +215,12 @@ class QueryClient {
       },
       listener,
     );
+  }
+
+  String toStableKey<T>(VoltQuery<T> query) {
+    return sha256
+        .convert(utf8.encode(keyTransformer(query.queryKey.map((e) => e ?? '').toList()).join(',')))
+        .toString();
   }
 }
 

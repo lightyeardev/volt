@@ -1,7 +1,6 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:volt/src/query.dart';
 import 'package:volt/src/query_client_provider.dart';
-import 'package:volt/src/utils.dart';
 
 /// Listens to a query and returns the result data
 ///
@@ -19,8 +18,8 @@ T? useQuery<T>(
   final client = QueryClientProvider.of(context);
   final enabledQuery = enabled && query.queryFn != null;
 
-  final key = toStableKey(query, client.keyTransformer);
-  final inMemoryData = client.persistor.peak(key, query);
+  final stableKey = client.toStableKey(query);
+  final inMemoryData = client.persistor.peak(stableKey, query);
 
   final stream = useMemoized(
     () => enabledQuery

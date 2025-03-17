@@ -33,4 +33,12 @@ class InMemoryPersistor extends VoltPersistor {
       return itemScope == scope;
     });
   }
+
+  @override
+  VoltPersistorResult<T> peak<T>(String key, VoltQuery<T> query) {
+    final data = _cache[key]?.value;
+    if (data is HasData<T>) return data;
+
+    return NoData<T>();
+  }
 }

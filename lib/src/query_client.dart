@@ -60,7 +60,7 @@ class QueryClient {
   /// when needed, and implements exponential backoff for failed requests.
   Stream<T> streamQuery<T>(VoltQuery<T> query, {Duration? staleDuration}) {
     int index = 0;
-    final key = _toStableKey(query);
+    final key = toStableKey(query);
     final threshold = staleDuration ?? query.staleDuration ?? this.staleDuration;
 
     return Rx.merge(
@@ -97,7 +97,7 @@ class QueryClient {
   /// It's useful for preloading data that will be needed soon, improving the user experience
   /// by reducing wait times.
   Future<bool> prefetchQuery<T>(VoltQuery<T> query) async {
-    final key = _toStableKey(query);
+    final key = toStableKey(query);
 
     return await _sourceAndPersist(key, query) is! _Failure<T>;
   }
@@ -112,7 +112,7 @@ class QueryClient {
   /// Returns a [Future] that completes with the fetched data of type [T].
   /// Throws an error if the fetch operation fails.
   Future<T> fetchQueryOrThrow<T>(VoltQuery<T> query) async {
-    final key = _toStableKey(query);
+    final key = toStableKey(query);
 
     final (data, _) = await _sourceAndPersistOrThrow(key, query);
     return data;
@@ -217,8 +217,11 @@ class QueryClient {
     );
   }
 
-  String _toStableKey<T>(VoltQuery<T> query) =>
-      sha256.convert(utf8.encode(keyTransformer(query.queryKey.map((e) => e ?? '').toList()).join(','))).toString();
+  String toStableKey<T>(VoltQuery<T> query) {
+    return sha256
+        .convert(utf8.encode(keyTransformer(query.queryKey.map((e) => e ?? '').toList()).join(',')))
+        .toString();
+  }
 }
 
 sealed class _VoltResult<S> {

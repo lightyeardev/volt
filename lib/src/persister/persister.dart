@@ -13,6 +13,11 @@ abstract class VoltPersistor {
     dynamic data,
   );
 
+  VoltPersistorResult<T> peak<T>(
+    String key,
+    VoltQuery<T> query,
+  );
+
   Future<void> clearScope(String? scope);
 }
 

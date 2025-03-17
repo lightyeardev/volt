@@ -1,5 +1,42 @@
-import 'package:volt/src/hooks/use_query.dart';
-import 'package:volt/src/query.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:volt/volt.dart';
+
+List<T>? useQueries<T>(
+  List<VoltQuery<T>>? queries, {
+  bool enabled = true,
+  Duration? staleTime,
+}) {
+  final context = useContext();
+  final client = QueryClientProvider.of(context);
+
+  final queryKeys = queries?.map((q) => q.queryKey).flattened.toList() ?? [];
+  final enabledQuery =
+      queries != null && queries.every((q) => q.queryFn != null) && queries.isNotEmpty;
+
+  final (stream, initialData) = useMemoized(
+    () {
+      if (!enabledQuery) return (Rx.never<List<T>>(), null);
+
+      final inMemoryData =
+          queries.map((query) => client.persistor.peak(client.toStableKey(query), query)).toList();
+
+      final hasData = inMemoryData.every((data) => data is HasData);
+      final initialData =
+          hasData ? inMemoryData.map((data) => (data as HasData).data as T).toList() : null;
+
+      final stream = Rx.combineLatestList(
+        queries.map((query) => client.streamQuery(query, staleDuration: staleTime)),
+      );
+
+      return (stream, initialData);
+    },
+    [client, ...queryKeys, staleTime, enabledQuery],
+  );
+
+  return useStream(stream, initialData: initialData).data;
+}
 
 (T1, T2)? useQueries2<T1, T2>(
   VoltQuery<T1> query1,

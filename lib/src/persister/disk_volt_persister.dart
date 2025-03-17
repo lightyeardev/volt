@@ -83,6 +83,16 @@ class FileVoltPersistor implements VoltPersistor {
   }
 
   @override
+  VoltPersistorResult<T> peak<T>(String key, VoltQuery<T> query) {
+    final relativePath = _getRelativeFilePathWithFileName(key, query.scope);
+    final cachedItem = cache[relativePath];
+
+    if (cachedItem == null) return NoData<T>();
+
+    return cachedItem as HasData<T>;
+  }
+
+  @override
   Future<void> clearScope(String? scope) async {
     await _clearDirectory(scope);
     _clearCache(scope);

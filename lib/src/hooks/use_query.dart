@@ -1,4 +1,6 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:volt/src/persister/persister.dart';
 import 'package:volt/src/query.dart';
 import 'package:volt/src/query_client_provider.dart';
 
@@ -20,13 +22,14 @@ T? useQuery<T>(
 
   final (stream, initialData) = useMemoized(
     () {
-      if (!enabledQuery) return (const Stream.empty(), null);
+      if (!enabledQuery) return (Rx.never<T>(), null);
 
       final inMemoryData = client.persistor.peak(client.toStableKey(query), query);
+      final hasData = inMemoryData is HasData<T>;
       final stream = client
           .streamQuery(query, staleDuration: staleTime)
-          .where((data) => inMemoryData == null || !identical(data, inMemoryData));
-      return (stream, inMemoryData);
+          .where((data) => !hasData || !identical(data, inMemoryData.data));
+      return (stream, hasData ? inMemoryData.data : null);
     },
     [client, ...query.queryKey, staleTime, enabledQuery],
   );

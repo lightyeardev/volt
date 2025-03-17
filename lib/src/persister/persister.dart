@@ -13,7 +13,7 @@ abstract class VoltPersistor {
     dynamic data,
   );
 
-  T? peak<T>(
+  VoltPersistorResult<T> peak<T>(
     String key,
     VoltQuery<T> query,
   );

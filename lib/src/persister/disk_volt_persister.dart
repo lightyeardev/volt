@@ -83,9 +83,13 @@ class FileVoltPersistor implements VoltPersistor {
   }
 
   @override
-  T? peak<T>(String key, VoltQuery<T> query) {
+  VoltPersistorResult<T> peak<T>(String key, VoltQuery<T> query) {
     final relativePath = _getRelativeFilePathWithFileName(key, query.scope);
-    return cache[relativePath]?.data;
+    final cachedItem = cache[relativePath];
+
+    if (cachedItem == null) return NoData<T>();
+
+    return cachedItem as HasData<T>;
   }
 
   @override

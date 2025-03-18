@@ -1,3 +1,5 @@
+## 0.0.9
+
 ## 0.0.8
 
 - Make useQuery lifecycle-aware by pausing and resuming based on app state

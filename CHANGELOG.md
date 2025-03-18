@@ -1,5 +1,8 @@
 ## 0.0.8
 
+- Make useQuery lifecycle-aware by pausing and resuming based on app state
+- Optimize useQuery hook to return cached data synchronously when available
+
 ## 0.0.7
 
 - Fix listener not being passed in to the persister

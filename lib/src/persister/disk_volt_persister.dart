@@ -187,10 +187,10 @@ class FileVoltPersistor implements VoltPersistor {
             .first);
 
         final metadataString = await metadataFile.readAsString();
-        final jsonMetadata = jsonDecode(metadataString);
+        final jsonMetadata = jsonDecode(metadataString) as Map<String, Object?>;
 
         final T data = deserialiser(dynamicData);
-        final timestamp = DateTime.parse(jsonMetadata['timestamp']);
+        final timestamp = DateTime.parse(jsonMetadata['timestamp'] as String);
         final hasData = HasData<T>(data, timestamp, scope);
 
         cache[relativePath] = hasData;

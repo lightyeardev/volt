@@ -181,6 +181,7 @@ class QueryClient {
       if (kDebugMode) {
         _logger.logInfo(
           'Failed to fetch from queryFn: $key',
+          error: e,
           stackTrace: stackTrace,
         );
       }

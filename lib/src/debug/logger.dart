@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 abstract class Logger {
   void logError(Object error, {StackTrace? stackTrace});
 
-  void logInfo(Object info, {StackTrace? stackTrace});
+  void logInfo(Object info, {Object? error, StackTrace? stackTrace});
 }
 
 class StdOutLogger implements Logger {
@@ -21,13 +21,12 @@ class StdOutLogger implements Logger {
   }
 
   @override
-  void logInfo(Object info, {StackTrace? stackTrace}) {
+  void logInfo(Object info, {Object? error, StackTrace? stackTrace}) {
     if (kDebugMode) {
       print('Volt info: $info');
 
-      if (stackTrace != null) {
-        print(stackTrace);
-      }
+      if (error != null) print(error);
+      if (stackTrace != null) print(stackTrace);
     }
   }
 }
@@ -39,5 +38,5 @@ class NoOpLogger implements Logger {
   void logError(Object error, {StackTrace? stackTrace}) {}
 
   @override
-  void logInfo(Object info, {StackTrace? stackTrace}) {}
+  void logInfo(Object info, {Object? error, StackTrace? stackTrace}) {}
 }

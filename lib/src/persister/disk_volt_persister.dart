@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:disk_space_plus/disk_space_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -16,6 +17,7 @@ import 'package:volt/src/volt_listener.dart';
 class FileVoltPersistor implements VoltPersistor {
   final FileChangeObserver observer = FileChangeObserver();
   final VoltListener? listener;
+  double? _diskSpaceMemo;
   late final LruCache<String, HasData> cache = LruCache(
     200,
     listener?.onMemoryCacheSizeChanged,
@@ -108,7 +110,7 @@ class FileVoltPersistor implements VoltPersistor {
     bool disableDiskCache,
     VoltQuery query,
   ) async {
-    if (disableDiskCache) {
+    if (disableDiskCache || !(await hasEnoughDiskSpace)) {
       return;
     }
 
@@ -168,7 +170,7 @@ class FileVoltPersistor implements VoltPersistor {
       }
       if (reportStats) listener?.onMemoryCacheMiss();
 
-      if (disableDiskCache) {
+      if (disableDiskCache || !(await hasEnoughDiskSpace)) {
         return NoData();
       }
 
@@ -235,6 +237,12 @@ class FileVoltPersistor implements VoltPersistor {
         cache.remove(key);
       }
     });
+  }
+
+  Future<bool> get hasEnoughDiskSpace async {
+    _diskSpaceMemo ??= await DiskSpacePlus.getFreeDiskSpace;
+
+    return _diskSpaceMemo != null && _diskSpaceMemo! > 1024 * 1024 * 1024; // 1GB
   }
 
   static Future<String> _getSafeApplicationDirectoryPath() async =>

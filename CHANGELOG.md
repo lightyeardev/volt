@@ -1,5 +1,7 @@
 ## 0.0.9
 
+- Skip persistence if device is low disk space
+
 ## 0.0.8
 
 - Make useQuery lifecycle-aware by pausing and resuming based on app state

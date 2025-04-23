@@ -1,3 +1,6 @@
+## 0.0.10
+
+
 ## 0.0.9
 
 - Skip persistence if device is low disk space

@@ -1,6 +1,6 @@
 name: volt
 description: "Simple, fast, effortless data fetching and real-time updates"
-version: 0.0.10
+version: 0.0.11
 homepage: https://github.com/lightyeardev/volt
 repository: https://github.com/lightyeardev/volt
 
@@ -11,7 +11,7 @@ environment:
 dependencies:
   collection: ^1.18.0
   crypto: ^3.0.5
-  disk_space_plus: ^0.2.4
+  disk_space_2: ^1.0.8
   flutter:
     sdk: flutter
   flutter_hooks: ^0.20.5

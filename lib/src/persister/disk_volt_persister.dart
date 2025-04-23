@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:disk_space_plus/disk_space_plus.dart';
+import 'package:disk_space_2/disk_space_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -240,7 +240,7 @@ class FileVoltPersistor implements VoltPersistor {
   }
 
   Future<bool> get hasEnoughDiskSpace async {
-    _diskSpaceMemo ??= await DiskSpacePlus.getFreeDiskSpace;
+    _diskSpaceMemo ??= await DiskSpace.getFreeDiskSpace;
 
     return _diskSpaceMemo != null && _diskSpaceMemo! > 1024 * 1024 * 1024; // 1GB
   }

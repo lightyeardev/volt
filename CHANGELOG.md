@@ -1,5 +1,6 @@
 ## 0.0.10
 
+- Change free disk space dependency
 
 ## 0.0.9
 

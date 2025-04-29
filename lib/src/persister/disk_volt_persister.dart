@@ -242,7 +242,7 @@ class FileVoltPersistor implements VoltPersistor {
   Future<bool> get hasEnoughDiskSpace async {
     _diskSpaceMemo ??= await DiskSpace.getFreeDiskSpace;
 
-    return _diskSpaceMemo != null && _diskSpaceMemo! > 1024 * 1024 * 1024; // 1GB
+    return _diskSpaceMemo != null && _diskSpaceMemo! > 1024; // 1GB
   }
 
   static Future<String> _getSafeApplicationDirectoryPath() async =>

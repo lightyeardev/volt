@@ -1,3 +1,7 @@
+# 0.0.11
+
+- Fix diskspace amount check
+
 ## 0.0.10
 
 - Change free disk space dependency

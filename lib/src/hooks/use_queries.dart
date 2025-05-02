@@ -36,7 +36,7 @@ List<T>? useQueries<T>(
     [client, ...queryKeys, staleTime, enabledQuery],
   );
 
-  return useLifecycleAwareStream(stream, initialData: initialData, keys: [stream]);
+  return useLifecycleAwareStream(stream, initialData: initialData);
 }
 
 (T1, T2)? useQueries2<T1, T2>(

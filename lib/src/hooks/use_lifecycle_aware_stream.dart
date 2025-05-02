@@ -3,13 +3,8 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-T useLifecycleAwareStream<T>(
-  Stream<T> stream, {
-  required T initialData,
-  List<Object?>? keys,
-}) {
-  return use(_LifecyleAwareStreamHook<T>(stream, initialData: initialData, keys: keys));
-}
+T useLifecycleAwareStream<T>(Stream<T> stream, {required T initialData, List<Object?>? keys}) =>
+    use(_LifecyleAwareStreamHook<T>(stream, initialData: initialData, keys: keys));
 
 class _LifecyleAwareStreamHook<T> extends Hook<T> {
   const _LifecyleAwareStreamHook(

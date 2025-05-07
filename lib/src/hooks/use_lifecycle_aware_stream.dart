@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 T useLifecycleAwareStream<T>(Stream<T> stream, {required T initialData}) =>
-    use(_LifecyleAwareStreamHook<T>(stream, initialData: initialData, keys: [stream]));
+    use(_LifecyleAwareStreamHook<T>(stream, initialData: initialData));
 
 class _LifecyleAwareStreamHook<T> extends Hook<T> {
   const _LifecyleAwareStreamHook(
@@ -24,7 +24,6 @@ class _DataStreamHookState<T> extends HookState<T, _LifecyleAwareStreamHook<T>>
     with WidgetsBindingObserver {
   T _data;
   StreamSubscription? _subscription;
-  bool hasEmitted = false;
 
   _DataStreamHookState(this._data);
 
@@ -37,13 +36,15 @@ class _DataStreamHookState<T> extends HookState<T, _LifecyleAwareStreamHook<T>>
   @override
   void didUpdateHook(_LifecyleAwareStreamHook<T> oldHook) {
     super.didUpdateHook(oldHook);
-    if (oldHook.stream != hook.stream) {
-      if (_subscription != null) {
-        _unsubscribe();
-        if (!hasEmitted) _data = hook.initialData;
+    if (identical(oldHook.stream, hook.stream)) return;
+
+    if (_subscription != null) {
+      _unsubscribe();
+      if (hook.initialData != null && !identical(hook.initialData, _data)) {
+        setState(() => _data = hook.initialData);
       }
-      _subscribe();
     }
+    _subscribe();
   }
 
   @override
@@ -74,10 +75,7 @@ class _DataStreamHookState<T> extends HookState<T, _LifecyleAwareStreamHook<T>>
 
   void _subscribe() {
     _subscription = hook.stream.listen(
-      (event) {
-        hasEmitted = true;
-        setState(() => _data = event);
-      },
+      (event) => setState(() => _data = event),
       cancelOnError: true,
     );
     WidgetsBinding.instance.addObserver(this);

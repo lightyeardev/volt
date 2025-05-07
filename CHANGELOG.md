@@ -1,3 +1,7 @@
+# 0.1.0
+
+- Improve useLifecycleAwareStream to handle initial data & stream changes
+
 # 0.0.12
 
 - Improve useLifecycleAwareStream to handle stream changes

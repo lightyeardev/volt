@@ -8,6 +8,7 @@ List<T>? useQueries<T>(
   List<VoltQuery<T>>? queries, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
   final context = useContext();
   final client = QueryClientProvider.of(context);
@@ -36,7 +37,11 @@ List<T>? useQueries<T>(
     [client, ...queryKeys, staleTime, enabledQuery],
   );
 
-  return useLifecycleAwareStream(stream, initialData: initialData);
+  return useLifecycleAwareStream(
+    stream,
+    initialData: initialData,
+    keepPreviousData: keepPreviousData,
+  );
 }
 
 (T1, T2)? useQueries2<T1, T2>(
@@ -44,9 +49,20 @@ List<T>? useQueries<T>(
   VoltQuery<T2> query2, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
-  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
-  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
+  final r1 = useQuery(
+    query1,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r2 = useQuery(
+    query2,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
 
   if (r1 == null || r2 == null) {
     return null;
@@ -61,10 +77,26 @@ List<T>? useQueries<T>(
   VoltQuery<T3> query3, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
-  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
-  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
-  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
+  final r1 = useQuery(
+    query1,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r2 = useQuery(
+    query2,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r3 = useQuery(
+    query3,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
 
   if (r1 == null || r2 == null || r3 == null) {
     return null;
@@ -80,11 +112,32 @@ List<T>? useQueries<T>(
   VoltQuery<T4> query4, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
-  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
-  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
-  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
-  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
+  final r1 = useQuery(
+    query1,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r2 = useQuery(
+    query2,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r3 = useQuery(
+    query3,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r4 = useQuery(
+    query4,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
 
   if (r1 == null || r2 == null || r3 == null || r4 == null) {
     return null;
@@ -101,12 +154,38 @@ List<T>? useQueries<T>(
   VoltQuery<T5> query5, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
-  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
-  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
-  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
-  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
-  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
+  final r1 = useQuery(
+    query1,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r2 = useQuery(
+    query2,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r3 = useQuery(
+    query3,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r4 = useQuery(
+    query4,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r5 = useQuery(
+    query5,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
 
   if (r1 == null || r2 == null || r3 == null || r4 == null || r5 == null) {
     return null;
@@ -124,13 +203,44 @@ List<T>? useQueries<T>(
   VoltQuery<T6> query6, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
-  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
-  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
-  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
-  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
-  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
-  final r6 = useQuery(query6, enabled: enabled, staleTime: staleTime);
+  final r1 = useQuery(
+    query1,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r2 = useQuery(
+    query2,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r3 = useQuery(
+    query3,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r4 = useQuery(
+    query4,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r5 = useQuery(
+    query5,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r6 = useQuery(
+    query6,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
 
   if (r1 == null || r2 == null || r3 == null || r4 == null || r5 == null || r6 == null) {
     return null;
@@ -149,14 +259,50 @@ List<T>? useQueries<T>(
   VoltQuery<T7> query7, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
-  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
-  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
-  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
-  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
-  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
-  final r6 = useQuery(query6, enabled: enabled, staleTime: staleTime);
-  final r7 = useQuery(query7, enabled: enabled, staleTime: staleTime);
+  final r1 = useQuery(
+    query1,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r2 = useQuery(
+    query2,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r3 = useQuery(
+    query3,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r4 = useQuery(
+    query4,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r5 = useQuery(
+    query5,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r6 = useQuery(
+    query6,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r7 = useQuery(
+    query7,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
 
   if (r1 == null ||
       r2 == null ||
@@ -182,15 +328,56 @@ List<T>? useQueries<T>(
   VoltQuery<T8> query8, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
-  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
-  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
-  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
-  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
-  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
-  final r6 = useQuery(query6, enabled: enabled, staleTime: staleTime);
-  final r7 = useQuery(query7, enabled: enabled, staleTime: staleTime);
-  final r8 = useQuery(query8, enabled: enabled, staleTime: staleTime);
+  final r1 = useQuery(
+    query1,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r2 = useQuery(
+    query2,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r3 = useQuery(
+    query3,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r4 = useQuery(
+    query4,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r5 = useQuery(
+    query5,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r6 = useQuery(
+    query6,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r7 = useQuery(
+    query7,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r8 = useQuery(
+    query8,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
 
   if (r1 == null ||
       r2 == null ||
@@ -218,16 +405,62 @@ List<T>? useQueries<T>(
   VoltQuery<T9> query9, {
   bool enabled = true,
   Duration? staleTime,
+  bool keepPreviousData = true,
 }) {
-  final r1 = useQuery(query1, enabled: enabled, staleTime: staleTime);
-  final r2 = useQuery(query2, enabled: enabled, staleTime: staleTime);
-  final r3 = useQuery(query3, enabled: enabled, staleTime: staleTime);
-  final r4 = useQuery(query4, enabled: enabled, staleTime: staleTime);
-  final r5 = useQuery(query5, enabled: enabled, staleTime: staleTime);
-  final r6 = useQuery(query6, enabled: enabled, staleTime: staleTime);
-  final r7 = useQuery(query7, enabled: enabled, staleTime: staleTime);
-  final r8 = useQuery(query8, enabled: enabled, staleTime: staleTime);
-  final r9 = useQuery(query9, enabled: enabled, staleTime: staleTime);
+  final r1 = useQuery(
+    query1,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r2 = useQuery(
+    query2,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r3 = useQuery(
+    query3,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r4 = useQuery(
+    query4,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r5 = useQuery(
+    query5,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r6 = useQuery(
+    query6,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r7 = useQuery(
+    query7,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r8 = useQuery(
+    query8,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
+  final r9 = useQuery(
+    query9,
+    enabled: enabled,
+    staleTime: staleTime,
+    keepPreviousData: keepPreviousData,
+  );
 
   if (r1 == null ||
       r2 == null ||

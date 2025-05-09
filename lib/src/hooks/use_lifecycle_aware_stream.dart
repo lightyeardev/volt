@@ -3,17 +3,28 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-T useLifecycleAwareStream<T>(Stream<T> stream, {required T initialData}) =>
-    use(_LifecyleAwareStreamHook<T>(stream, initialData: initialData));
+T useLifecycleAwareStream<T>(
+  Stream<T> stream, {
+  required T initialData,
+  required bool keepPreviousData,
+}) {
+  return use(_LifecyleAwareStreamHook<T>(
+    stream,
+    initialData: initialData,
+    keepPreviousData: keepPreviousData,
+  ));
+}
 
 class _LifecyleAwareStreamHook<T> extends Hook<T> {
   const _LifecyleAwareStreamHook(
     this.stream, {
     required this.initialData,
+    required this.keepPreviousData,
     super.keys,
   });
 
   final T initialData;
+  final bool keepPreviousData;
   final Stream stream;
 
   @override
@@ -40,7 +51,8 @@ class _DataStreamHookState<T> extends HookState<T, _LifecyleAwareStreamHook<T>>
 
     if (_subscription != null) {
       _unsubscribe();
-      if (hook.initialData != null && !identical(hook.initialData, _data)) {
+      if (hook.initialData != null && !identical(hook.initialData, _data) ||
+          !hook.keepPreviousData) {
         setState(() => _data = hook.initialData);
       }
     }

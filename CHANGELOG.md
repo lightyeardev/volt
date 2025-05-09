@@ -1,3 +1,7 @@
+# 0.1.1
+
+- Added keepPreviousData option to retain (or discard) old data while fetching new data after query key changes
+
 # 0.1.0
 
 - Improve useLifecycleAwareStream to handle initial data & stream changes

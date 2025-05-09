@@ -16,6 +16,7 @@ T? useQuery<T>(
   VoltQuery<T> query, {
   Duration? staleTime,
   bool enabled = true,
+  bool keepPreviousData = true,
 }) {
   final context = useContext();
   final client = QueryClientProvider.of(context);
@@ -35,5 +36,9 @@ T? useQuery<T>(
     [client, ...query.queryKey, staleTime, enabledQuery],
   );
 
-  return useLifecycleAwareStream(stream, initialData: initialData);
+  return useLifecycleAwareStream(
+    stream,
+    initialData: initialData,
+    keepPreviousData: keepPreviousData,
+  );
 }

@@ -17,6 +17,7 @@ T? useQuery<T>(
   Duration? staleTime,
   bool enabled = true,
   bool keepPreviousData = true,
+  bool refetchOnResume = true,
 }) {
   final context = useContext();
   final client = QueryClientProvider.of(context);
@@ -40,5 +41,18 @@ T? useQuery<T>(
     stream,
     initialData: initialData,
     keepPreviousData: keepPreviousData,
+    onResume: !enabledQuery || !refetchOnResume
+        ? null
+        : () {
+            final key = client.toStableKey(query);
+            final persisted = client.persistor.peak<T>(key, query);
+            final threshold = staleTime ?? query.staleDuration ?? client.staleDuration;
+            if (persisted is HasData<T>) {
+              final isStale = persisted.timestamp.add(threshold).isBefore(DateTime.now().toUtc());
+              if (isStale) {
+                client.prefetchQuery<T>(query);
+              }
+            }
+          },
   );
 }

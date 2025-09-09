@@ -7,11 +7,13 @@ T useLifecycleAwareStream<T>(
   Stream<T> stream, {
   required T initialData,
   required bool keepPreviousData,
+  void Function()? onResume,
 }) {
   return use(_LifecyleAwareStreamHook<T>(
     stream,
     initialData: initialData,
     keepPreviousData: keepPreviousData,
+    onResume: onResume,
   ));
 }
 
@@ -20,12 +22,14 @@ class _LifecyleAwareStreamHook<T> extends Hook<T> {
     this.stream, {
     required this.initialData,
     required this.keepPreviousData,
+    this.onResume,
     super.keys,
   });
 
   final T initialData;
   final bool keepPreviousData;
   final Stream stream;
+  final void Function()? onResume;
 
   @override
   _DataStreamHookState<T> createState() => _DataStreamHookState<T>(initialData);
@@ -76,6 +80,8 @@ class _DataStreamHookState<T> extends HookState<T, _LifecyleAwareStreamHook<T>>
       subscription.pause();
     } else if (state == AppLifecycleState.resumed && subscription.isPaused) {
       subscription.resume();
+      final callback = hook.onResume;
+      if (callback != null) callback();
     }
   }
 

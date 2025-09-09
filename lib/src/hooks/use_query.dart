@@ -50,7 +50,6 @@ T? useQuery<T>(
             if (persisted is HasData<T>) {
               final isStale = persisted.timestamp.add(threshold).isBefore(DateTime.now().toUtc());
               if (isStale) {
-                // Fire and forget; stream will update when persistence completes
                 client.prefetchQuery<T>(query);
               }
             }

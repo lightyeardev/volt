@@ -5,16 +5,16 @@ code.
 
 ## Features
 
-- ⚡️ Blazing-fast development with minimal boilerplate code
-- 🚀 Fast in-memory caching for instant data access
-- 💾 Robust disk caching for seamless offline support
-- 🔄 Smart query deduplication to optimize network requests
-- 🔮 Configurable auto-refetching to keep data fresh
-- 📡 Real-time reactive updates across all listeners
-- 🧩 Easy integration with existing Flutter projects
-- 🧠 Compute isolate support for heavy deserialization tasks
-- 📦 Simple and compact package for efficient state management
-- 🔒 Built-in error handling, auto recovery and retry mechanisms
+- ⚡️ Minimal boilerplate code for faster development
+- 📡 Reactive updates for data consistency between components
+- 🚀 In-memory caching for instant data access
+- 💾 Disk caching with offline support
+- 🔄 Query deduplication to reduce network requests
+- 🔮 Configurable auto-refetching for fresh data
+- 🧩 Easy integration with Flutter projects
+- 🧠 Compute isolate support for heavy operations
+- 📦 Lightweight package with minimal dependencies
+- 🔒 Error handling with automatic retry mechanisms
 
 ## Install
 
@@ -184,3 +184,5 @@ By default, Volt persists data to disk using the `FileVoltPersistor`. Which reli
 ## Credits
 
 Volt's public API design was inspired by [React Query](https://tanstack.com/query/latest), a popular data-fetching and state management library for React applications.
+
+Special thanks to [flutter_hooks](https://pub.dev/packages/flutter_hooks) for bringing React-style hooks to Flutter, which made this package possible.

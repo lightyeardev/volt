@@ -179,13 +179,7 @@ This ensures cache isolation between environments and prevents data conflicts.
 
 ### Persistence
 
-By default, Volt persists data to disk using the `FileVoltPersistor`. Which relies on no heavy dependencies and is very fast (uses the file system). Although, this can be overridden with a custom persister.
-
-```dart
-final queryClient = QueryClient(
-  persistor: CustomDriftPersistor(),
-);
-```
+By default, Volt persists data to disk using the `FileVoltPersistor`. Which relies on no heavy dependencies and is very fast (uses the file system). Although, this can be overridden with a custom persister in the `QueryClient` constructor.
 
 ## Credits
 

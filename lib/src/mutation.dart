@@ -1,58 +1,76 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 
+/// A mutation for performing side effects like create, update, or delete operations
+///
+/// This is used to define a mutation that will be executed when [mutate] is called
 class VoltMutation<T> {
-  final Future<bool> Function(T params) mutationFn;
-  final void Function(T? params)? _onSuccess;
-  final void Function(T? params)? _onError;
-  final ValueNotifier<VoltMutationState> _state;
+  /// The current state of the mutation
+  final MutationState state;
 
-  VoltMutation({
-    required this.mutationFn,
-    void Function(T?)? onSuccess,
-    void Function(T?)? onError,
-    required ValueNotifier<VoltMutationState> state,
-  })  : _onSuccess = onSuccess,
-        _onError = onError,
-        _state = state;
+  /// The function to execute the mutation with the provided variables
+  final Future<void> Function(T variables) mutate;
 
-  Future<bool> mutate(T params) async {
-    assert(_state.value.isPending, 'Mutation is already in progress');
+  /// Resets the mutation state back to idle
+  final VoidCallback reset;
 
-    if (_state.value.isPending) return false;
-
-    _state.value = const VoltMutationState(isPending: true);
-
-    try {
-      final success = await mutationFn(params);
-      if (success) {
-        _onSuccess?.call(params);
-      } else {
-        _onError?.call(params);
-      }
-      _state.value = VoltMutationState(isPending: false, isSuccess: success);
-      return success;
-    } catch (error) {
-      _state.value = const VoltMutationState(isPending: false, isError: true);
-      _onError?.call(params);
-      return false;
-    } finally {
-      _state.value = const VoltMutationState(isPending: false);
-    }
-  }
-
-  VoltMutationState get state => _state.value;
-
-  void reset() => _state.value = const VoltMutationState(isPending: false);
+  const VoltMutation({
+    required this.state,
+    required this.mutate,
+    required this.reset,
+  });
 }
 
-class VoltMutationState {
-  final bool isPending;
-  final bool isSuccess;
-  final bool isError;
+/// The state of a mutation
+class MutationState {
+  /// The status of the mutation
+  final MutationStatus status;
 
-  const VoltMutationState({
-    this.isPending = false,
-    this.isSuccess = false,
-    this.isError = false,
+  /// The error that occurred during the mutation, if any
+  final Object? error;
+
+  const MutationState({
+    required this.status,
+    this.error,
   });
+
+  /// Whether the mutation is currently idle (not started)
+  bool get isIdle => status == MutationStatus.idle;
+
+  /// Whether the mutation is currently loading
+  bool get isLoading => status == MutationStatus.loading;
+
+  /// Whether the mutation was successful
+  bool get isSuccess => status == MutationStatus.success;
+
+  /// Whether the mutation encountered an error
+  bool get isError => status == MutationStatus.error;
+
+  const MutationState.idle()
+      : status = MutationStatus.idle,
+        error = null;
+
+  MutationState copyWith({
+    MutationStatus? status,
+    Object? error,
+  }) {
+    return MutationState(
+      status: status ?? this.status,
+      error: error ?? this.error,
+    );
+  }
+}
+
+/// The status of a mutation
+enum MutationStatus {
+  /// The mutation has not been executed yet
+  idle,
+
+  /// The mutation is currently executing
+  loading,
+
+  /// The mutation completed successfully
+  success,
+
+  /// The mutation encountered an error
+  error,
 }

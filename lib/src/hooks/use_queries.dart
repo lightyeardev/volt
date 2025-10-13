@@ -17,7 +17,7 @@ List<T>? useQueries<T>(
   final enabledQuery =
       queries != null && queries.every((q) => q.queryFn != null) && queries.isNotEmpty;
 
-  final (stream, initialData) = useMemoized<(Stream<List<T>>, List<T?>?)>(
+  final (stream, initialData) = useMemoized<(Stream<List<T>>, List<T>?)>(
     () {
       if (!enabledQuery) return (Rx.never<List<T>>(), null);
 
@@ -27,16 +27,15 @@ List<T>? useQueries<T>(
         return hasData ? inMemoryData.data : null;
       }).toList();
 
+      final hasInitialData = initialData.every((data) => data != null);
       final stream = Rx.combineLatestList<T>(
-        queries.map((query) {
-          final inMemoryData = client.persistor.peak(client.toStableKey(query), query);
-          final hasData = inMemoryData is HasData<T>;
+        queries.mapIndexed((index, query) {
           return client
               .streamQuery(query, staleDuration: staleTime)
-              .where((data) => !hasData || !identical(data, inMemoryData.data));
+              .where((data) => !hasInitialData || !identical(data, initialData[index]));
         }),
       );
-      return (stream, initialData);
+      return (stream, hasInitialData ? initialData.cast<T>() : null);
     },
     [client, ...queryKeys, staleTime, enabledQuery],
   );

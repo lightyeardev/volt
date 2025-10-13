@@ -40,11 +40,9 @@ List<T>? useQueries<T>(
     [client, ...queryKeys, staleDuration, enabledQuery],
   );
 
-  final hasInitialData = initialData?.every((data) => data != null) ?? false;
-
   return useLifecycleAwareStream(
     stream,
-    initialData: hasInitialData ? initialData!.cast<T>() : null,
+    initialData: initialData,
     keepPreviousData: keepPreviousData,
     onResume: !enabledQuery || !refetchOnResume
         ? null

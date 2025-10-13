@@ -6,7 +6,7 @@ import 'package:volt/volt.dart';
 
 List<T>? useQueries<T>(
   List<VoltQuery<T>>? queries, {
-  Duration? staleTime,
+  Duration? staleDuration,
   bool enabled = true,
   bool keepPreviousData = true,
   bool refetchOnResume = true,
@@ -31,13 +31,13 @@ List<T>? useQueries<T>(
       final stream = Rx.combineLatestList<T>(
         queries.mapIndexed((index, query) {
           return client
-              .streamQuery(query, staleDuration: staleTime)
+              .streamQuery(query, staleDuration: staleDuration)
               .where((data) => !hasInitialData || !identical(data, initialData[index]));
         }),
       );
       return (stream, hasInitialData ? initialData.cast<T>() : null);
     },
-    [client, ...queryKeys, staleTime, enabledQuery],
+    [client, ...queryKeys, staleDuration, enabledQuery],
   );
 
   final hasInitialData = initialData?.every((data) => data != null) ?? false;
@@ -52,7 +52,7 @@ List<T>? useQueries<T>(
             for (final query in queries) {
               final key = client.toStableKey(query);
               final persisted = client.persistor.peak<T>(key, query);
-              final threshold = staleTime ?? query.staleDuration ?? client.staleDuration;
+              final threshold = staleDuration ?? query.staleDuration ?? client.staleDuration;
               if (persisted is HasData<T>) {
                 final isStale = persisted.timestamp.add(threshold).isBefore(DateTime.now().toUtc());
                 if (isStale) {

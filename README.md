@@ -63,7 +63,7 @@ Widget build(BuildContext context) {
       : ElevatedButton(
           onPressed: () => deletePhotoMutation.mutate('1'),
           child: const Text('Delete Photo'),
-  );
+        );
 }
 ```
 
@@ -72,7 +72,20 @@ Widget build(BuildContext context) {
 ```dart
 Widget build(BuildContext context) {
   final queryClient = useMemoized(() => QueryClient(
-    // configuration options
+    // Transforms query keys (useful for cache segmentation by environment/locale)
+    keyTransformer: (keys) => keys,
+
+    // Custom persistor for memory and disk caching
+    persistor: FileVoltPersistor(),
+
+    // Global default stale duration
+    staleDuration: const Duration(hours: 1),
+
+    // Enable debug mode for extra logging and stats
+    isDebug: false,
+
+    // Listener for query events (cache hits, network errors, etc.)
+    listener: null,
   ));
 
   return QueryClientProvider(
@@ -110,9 +123,69 @@ Widget build(BuildContext context) {
 }
 ```
 
-## API stability
+## Best Practices
 
-Volt's public API is not stable and may undergo breaking changes until version 1.0.0 is released.
+### Response Object Equality
+
+Response objects should implement equality to ensure proper change detection and prevent unnecessary rebuilds. Use [`equatable`](https://pub.dev/packages/equatable), [`freezed`](https://pub.dev/packages/freezed), or implement equality manually.
+
+### Query Key Structure
+
+Use consistent, hierarchical query keys. Start with a general identifier and add specifics:
+
+```dart
+// Good
+['users']
+['users', userId]
+['users', userId, 'posts']
+['users', userId, 'posts', postId]
+
+// Avoid
+['getUser123']
+[userId, 'users']  // inconsistent order
+```
+
+### Extract Query Definitions
+
+Define queries as functions outside widgets for reusability and testability:
+
+```dart
+// Good - reusable across the app
+VoltQuery<User> userQuery(String id) => VoltQuery(
+  queryKey: ['user', id],
+  queryFn: () => fetchUser(id),
+  select: User.fromJson,
+);
+
+// Avoid - inline queries are harder to reuse
+useQuery(VoltQuery(queryKey: ['user', id], ...));
+```
+
+### Cache segmentation
+
+Use `keyTransformer` in `QueryClient` to automatically segment cache by environment (production, staging, etc.)/locale (en, es, etc.) for all queries:
+
+```dart
+final queryClient = QueryClient(
+  keyTransformer: (keys) => [
+    isProduction ? 'production' : 'staging',
+    locale,
+    ...keys
+    ],
+);
+```
+
+This ensures cache isolation between environments and prevents data conflicts.
+
+### Persistence
+
+By default, Volt persists data to disk using the `FileVoltPersistor`. Which relies on no heavy dependencies and is very fast (uses the file system). Although, this can be overridden with a custom persister.
+
+```dart
+final queryClient = QueryClient(
+  persistor: CustomDriftPersistor(),
+);
+```
 
 ## Credits
 

@@ -2,6 +2,7 @@
 
 - Add refetchOnResume to refetch when the app is resumed from background
 - Improved mutation API
+- Add useQueries hook to fetch multiple queries at once
 
 # 0.1.1
 

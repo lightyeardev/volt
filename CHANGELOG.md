@@ -1,3 +1,9 @@
+# 1.0.0
+
+- Add refetchOnResume to refetch when the app is resumed from background
+- Improved mutation API
+- Add useQueries hook to fetch multiple queries at once
+
 # 0.1.1
 
 - Added keepPreviousData option to retain (or discard) old data while fetching new data after query key changes

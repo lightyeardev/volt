@@ -1,3 +1,7 @@
+# 1.0.2
+
+- Revert 1.0.1 optimisation to use openRead and transform
+
 # 1.0.1
 
 - Optimise disk persister to use readAsString/jsonDecode instead of openRead and transform

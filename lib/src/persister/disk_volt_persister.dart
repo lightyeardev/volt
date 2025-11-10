@@ -183,8 +183,13 @@ class FileVoltPersistor implements VoltPersistor {
         }
         if (reportStats) listener?.onDiskCacheHit();
 
-        final dynamicData = jsonDecode(await dataFile.readAsString());
-        final jsonMetadata = jsonDecode(await metadataFile.readAsString());
+        final dynamicData = (await dataFile
+            .openRead()
+            .transform(const Utf8Decoder().fuse(const JsonDecoder()))
+            .first);
+
+        final metadataString = await metadataFile.readAsString();
+        final jsonMetadata = jsonDecode(metadataString);
 
         final T data = deserialiser(dynamicData);
         final timestamp = DateTime.parse(jsonMetadata['timestamp']);

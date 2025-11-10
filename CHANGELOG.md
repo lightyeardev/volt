@@ -1,3 +1,7 @@
+# 1.0.1
+
+- Optimise disk persister to use readAsString/jsonDecode instead of openRead and transform
+
 # 1.0.0
 
 - Add refetchOnResume to refetch when the app is resumed from background

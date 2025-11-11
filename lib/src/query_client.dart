@@ -199,7 +199,10 @@ class QueryClient {
         final dynamic data;
         try {
           final useCompute = query.useComputeIsolate && !kDebugMode;
+          final start = DateTime.now();
           data = useCompute ? await compute(query.select, json) : query.select(json);
+          final end = DateTime.now();
+          listener?.onQuerySelect(query, end.difference(start));
         } catch (error, stackTrace) {
           listener?.onDeserializationError();
           if (isDebug) {

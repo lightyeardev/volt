@@ -1,3 +1,5 @@
+import 'package:volt/volt.dart';
+
 /// A listener for query events in Volt
 abstract class VoltListener {
   /// Called when a memory cache hit occurs
@@ -29,4 +31,7 @@ abstract class VoltListener {
 
   /// Called when requests are conflated
   void onRequestConflated() {}
+
+  /// Called when select is invoked
+  void onQuerySelect(VoltQuery query, Duration duration) {}
 }

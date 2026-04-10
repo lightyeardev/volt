@@ -35,10 +35,32 @@ class InMemoryPersistor extends VoltPersistor {
   }
 
   @override
+  Future<void> clearAll() async {
+    _cache.clear();
+  }
+
+  @override
   VoltPersistorResult<T> peak<T>(String key, VoltQuery<T> query) {
     final data = _cache[key]?.value;
     if (data is HasData<T>) return data;
 
     return NoData<T>();
+  }
+}
+
+class TrackingPersistor extends InMemoryPersistor {
+  Duration? lastListenStaleDuration;
+  Duration? lastPutStaleDuration;
+
+  @override
+  Stream<VoltPersistorResult<T>> listen<T>(String key, VoltQuery<T> query) {
+    lastListenStaleDuration = query.staleDuration;
+    return super.listen(key, query);
+  }
+
+  @override
+  Future<bool> put<T>(String key, VoltQuery<T> query, T dataObj, dynamic data) {
+    lastPutStaleDuration = query.staleDuration;
+    return super.put(key, query, dataObj, data);
   }
 }

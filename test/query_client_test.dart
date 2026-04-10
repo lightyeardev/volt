@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:volt/volt.dart';
 
 import 'mocks/mock_query_client.dart';
+import 'mocks/mock_persistor.dart';
 
 void main() {
   test('when cache is empty, streamQuery emits the result of the query function', () async {
@@ -66,6 +67,45 @@ void main() {
       stream,
       emitsInOrder([randomNumber1, randomNumber2]),
     );
+  });
+
+  test('prefetchQuery persists the client staleDuration when the query does not override it',
+      () async {
+    final persistor = TrackingPersistor();
+    final client = QueryClient(
+      persistor: persistor,
+      staleDuration: const Duration(hours: 6),
+    );
+    final query = VoltQuery(
+      queryKey: ['test'],
+      queryFn: () async => 42,
+      select: (d) => d,
+    );
+
+    await client.prefetchQuery(query);
+
+    expect(persistor.lastPutStaleDuration, const Duration(hours: 6));
+  });
+
+  test('streamQuery passes staleDuration overrides through to the persistor', () async {
+    final persistor = TrackingPersistor();
+    final client = QueryClient(
+      persistor: persistor,
+      staleDuration: const Duration(hours: 1),
+    );
+    final query = VoltQuery(
+      queryKey: ['test'],
+      queryFn: () async => 99,
+      select: (d) => d,
+    );
+
+    await expectLater(
+      client.streamQuery(query, staleDuration: const Duration(days: 1)),
+      emits(99),
+    );
+
+    expect(persistor.lastListenStaleDuration, const Duration(days: 1));
+    expect(persistor.lastPutStaleDuration, const Duration(days: 1));
   });
 
   test(

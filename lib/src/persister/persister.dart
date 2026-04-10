@@ -1,24 +1,15 @@
 import 'package:volt/src/query.dart';
 
 abstract class VoltPersistor {
-  Stream<VoltPersistorResult<T>> listen<T>(
-    String key,
-    VoltQuery<T> query,
-  );
+  Stream<VoltPersistorResult<T>> listen<T>(String key, VoltQuery<T> query);
 
-  Future<bool> put<T>(
-    String key,
-    VoltQuery<T> query,
-    T dataObj,
-    dynamic data,
-  );
+  Future<bool> put<T>(String key, VoltQuery<T> query, T dataObj, dynamic data);
 
-  VoltPersistorResult<T> peak<T>(
-    String key,
-    VoltQuery<T> query,
-  );
+  VoltPersistorResult<T> peak<T>(String key, VoltQuery<T> query);
 
   Future<void> clearScope(String? scope);
+
+  Future<void> clearAll();
 }
 
 sealed class VoltPersistorResult<T> {}

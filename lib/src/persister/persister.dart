@@ -19,6 +19,8 @@ abstract class VoltPersistor {
   );
 
   Future<void> clearScope(String? scope);
+
+  Future<void> clearAll();
 }
 
 sealed class VoltPersistorResult<T> {}

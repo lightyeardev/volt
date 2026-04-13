@@ -63,7 +63,6 @@ class FileVoltPersistor implements VoltPersistor {
         _writeMetadataFile(
           relativePath,
           data,
-          query.disableDiskCache,
           query,
         ),
       );
@@ -75,7 +74,6 @@ class FileVoltPersistor implements VoltPersistor {
         relativePath,
         dataJson,
         data,
-        query.disableDiskCache,
         query,
       ),
     );
@@ -100,6 +98,14 @@ class FileVoltPersistor implements VoltPersistor {
     _clearCache(scope);
   }
 
+  @override
+  Future<void> clearAll() async {
+    final appDirectory = await _getSafeApplicationDirectoryPath();
+    final directory = Directory('$appDirectory/persistor');
+    await directory.deleteSafely();
+    cache.evictAll();
+  }
+
   static bool _deepEquals<T>((Object?, T) record) =>
       const DeepCollectionEquality().equals(record.$1, record.$2);
 
@@ -107,10 +113,9 @@ class FileVoltPersistor implements VoltPersistor {
     String relativePath,
     Object? json,
     HasData<T> data,
-    bool disableDiskCache,
     VoltQuery query,
   ) async {
-    if (disableDiskCache || !(await hasEnoughDiskSpace)) {
+    if (query.disableDiskCache || !(await hasEnoughDiskSpace)) {
       return;
     }
 
@@ -124,25 +129,30 @@ class FileVoltPersistor implements VoltPersistor {
           .transform(const JsonEncoder().fuse(const Utf8Encoder()))
           .pipe(file.openWrite());
 
-      await _writeMetadataFile(
-        relativePath,
-        data,
-        disableDiskCache,
-        query,
-      );
+      await _writeMetadataFileUnlocked(relativePath, data, query);
     });
   }
 
   Future<void> _writeMetadataFile(
     String relativePath,
     HasData<dynamic> data,
-    bool disableDiskCache,
     VoltQuery query,
   ) async {
-    if (disableDiskCache) {
+    if (query.disableDiskCache) {
       return;
     }
 
+    await lock.synchronized(
+      relativePath,
+      () => _writeMetadataFileUnlocked(relativePath, data, query),
+    );
+  }
+
+  Future<void> _writeMetadataFileUnlocked(
+    String relativePath,
+    HasData<dynamic> data,
+    VoltQuery query,
+  ) async {
     final metadataFile = await _getFile(relativePath, 'metadata');
     if (!(await metadataFile.exists())) {
       await metadataFile.create(recursive: true);
@@ -150,6 +160,7 @@ class FileVoltPersistor implements VoltPersistor {
     await metadataFile.writeAsString(jsonEncode({
       'queryKey': query.queryKey,
       'timestamp': data.timestamp.toIso8601String(),
+      'staleDurationMs': query.staleDuration?.inMilliseconds,
     }));
   }
 
@@ -232,11 +243,87 @@ class FileVoltPersistor implements VoltPersistor {
   }
 
   void _clearCache(String? scope) {
+    final keysToRemove = <String>[];
     cache.forEach((key, value) {
       if (value.scope == scope) {
-        cache.remove(key);
+        keysToRemove.add(key);
       }
     });
+    for (final key in keysToRemove) {
+      cache.remove(key);
+    }
+  }
+
+  static Future<int> evictStaleFiles({Duration maxAge = const Duration(days: 7)}) async {
+    final appDirectory = await _getSafeApplicationDirectoryPath();
+    final persistorDir = Directory('$appDirectory/persistor');
+    if (!await persistorDir.exists()) return 0;
+
+    int deletedCount = 0;
+    final now = DateTime.now().toUtc();
+
+    await for (final entity in persistorDir.list(recursive: true)) {
+      if (entity is! File || !entity.path.endsWith('.metadata')) continue;
+
+      final relativePath = _getRelativePathForMetadataFile(appDirectory, entity.path);
+      await lock.synchronized(relativePath, () async {
+        if (!await entity.exists()) {
+          return;
+        }
+
+        try {
+          final content = await entity.readAsString();
+          final json = jsonDecode(content);
+          final timestamp = DateTime.parse(json['timestamp']);
+          final fileStaleDuration = json['staleDurationMs'] != null
+              ? Duration(milliseconds: json['staleDurationMs'])
+              : Duration.zero;
+          final effectiveMaxAge = maxAge > fileStaleDuration ? maxAge : fileStaleDuration;
+          final cutoff = now.subtract(effectiveMaxAge);
+
+          if (timestamp.isBefore(cutoff)) {
+            await _deletePersistedFiles(entity);
+            deletedCount++;
+          }
+        } catch (_) {
+          await _deletePersistedFiles(entity);
+          deletedCount++;
+        }
+      });
+    }
+
+    return deletedCount;
+  }
+
+  static Future<void> _deletePersistedFiles(File metadataFile) async {
+    await File(_swapFileExtension(metadataFile.path, from: 'metadata', to: 'json')).deleteSafely();
+    await metadataFile.deleteSafely();
+  }
+
+  static String _getRelativePathForMetadataFile(String appDirectory, String metadataPath) {
+    final prefix = '$appDirectory/';
+    final relativeMetadataPath =
+        metadataPath.startsWith(prefix) ? metadataPath.substring(prefix.length) : metadataPath;
+    const suffix = '.metadata';
+
+    if (relativeMetadataPath.endsWith(suffix)) {
+      return relativeMetadataPath.substring(0, relativeMetadataPath.length - suffix.length);
+    }
+
+    return relativeMetadataPath;
+  }
+
+  static String _swapFileExtension(
+    String path, {
+    required String from,
+    required String to,
+  }) {
+    final fromSuffix = '.$from';
+    if (!path.endsWith(fromSuffix)) {
+      return path;
+    }
+
+    return '${path.substring(0, path.length - fromSuffix.length)}.$to';
   }
 
   Future<bool> get hasEnoughDiskSpace async {

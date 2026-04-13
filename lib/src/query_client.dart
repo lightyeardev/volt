@@ -62,11 +62,12 @@ class QueryClient {
     int index = 0;
     final key = toStableKey(query);
     final threshold = staleDuration ?? query.staleDuration ?? this.staleDuration;
+    final effectiveQuery = _queryWithPersistedStaleDuration(query, threshold);
 
     return Rx.merge(
       [
-        persistor.listen(key, query),
-        _createPollingStream(key, query),
+        persistor.listen(key, effectiveQuery),
+        _createPollingStream(key, effectiveQuery),
       ],
     ).switchMap<T>(
       (persistedValue) {
@@ -74,12 +75,12 @@ class QueryClient {
           if (persistedValue is HasData) {
             final entry = persistedValue as HasData<T>;
             if (entry.timestamp.add(threshold).isBefore(DateTime.now().toUtc())) {
-              return _sourceWithExponentialBackoff(key, query).startWith(entry.data);
+              return _sourceWithExponentialBackoff(key, effectiveQuery).startWith(entry.data);
             } else {
               return Stream.value(entry.data);
             }
           } else if (persistedValue is NoData) {
-            return _sourceWithExponentialBackoff(key, query);
+            return _sourceWithExponentialBackoff(key, effectiveQuery);
           } else {
             throw 'Unexpected value: $persistedValue';
           }
@@ -98,8 +99,12 @@ class QueryClient {
   /// by reducing wait times.
   Future<bool> prefetchQuery<T>(VoltQuery<T> query) async {
     final key = toStableKey(query);
+    final effectiveQuery = _queryWithPersistedStaleDuration(
+      query,
+      query.staleDuration ?? staleDuration,
+    );
 
-    return await _sourceAndPersist(key, query) is! _Failure<T>;
+    return await _sourceAndPersist(key, effectiveQuery) is! _Failure<T>;
   }
 
   /// Fetches and caches the result of a query, throwing an error if the fetch fails.
@@ -113,22 +118,40 @@ class QueryClient {
   /// Throws an error if the fetch operation fails.
   Future<T> fetchQueryOrThrow<T>(VoltQuery<T> query) async {
     final key = toStableKey(query);
+    final effectiveQuery = _queryWithPersistedStaleDuration(
+      query,
+      query.staleDuration ?? staleDuration,
+    );
 
-    final (data, _) = await _sourceAndPersistOrThrow(key, query);
+    final (data, _) = await _sourceAndPersistOrThrow(key, effectiveQuery);
     return data;
   }
 
   /// Invalidates all queries within the specified scope.
   ///
   /// This method clears the cache for all queries associated with the given [scope].
-  /// If [scope] is null, it will invalidate all queries regardless of their scope.
+  /// If [scope] is null, it clears the default (unscoped) cache bucket only.
   ///
-  /// Use this method when you want to force a refresh of all data within a particular scope,
-  /// or when you want to clear all cached data if no scope is specified.
+  /// To clear ALL scopes at once, use [invalidateAll] instead.
   ///
   /// Returns a [Future] that completes when the invalidation process is finished.
   Future<void> invalidateScope(String? scope) async {
     await persistor.clearScope(scope);
+  }
+
+  /// Invalidates all cached data across every scope.
+  ///
+  /// This deletes the entire disk cache directory and clears the in-memory cache.
+  /// Use on logout or when a full cache reset is needed.
+  Future<void> invalidateAll() async {
+    await persistor.clearAll();
+  }
+
+  /// Evicts disk-cached entries older than [maxAge].
+  ///
+  /// Returns the number of evicted entries. Safe to call as fire-and-forget on app startup.
+  static Future<int> evictStaleDiskCache({Duration maxAge = const Duration(days: 7)}) {
+    return FileVoltPersistor.evictStaleFiles(maxAge: maxAge);
   }
 
   Stream<T> _createPollingStream<T>(String key, VoltQuery<T> query) {
@@ -218,6 +241,26 @@ class QueryClient {
         return (data, persisted);
       },
       listener,
+    );
+  }
+
+  VoltQuery<T> _queryWithPersistedStaleDuration<T>(
+    VoltQuery<T> query,
+    Duration effectiveStaleDuration,
+  ) {
+    if (query.staleDuration == effectiveStaleDuration) {
+      return query;
+    }
+
+    return VoltQuery<T>(
+      queryKey: query.queryKey,
+      queryFn: query.queryFn,
+      select: query.select,
+      staleDuration: effectiveStaleDuration,
+      useComputeIsolate: query.useComputeIsolate,
+      disableDiskCache: query.disableDiskCache,
+      scope: query.scope,
+      pollingDuration: query.pollingDuration,
     );
   }
 

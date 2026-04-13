@@ -1,7 +1,8 @@
-# 1.0.2
+# 1.1.0
 
 - Revert 1.0.1 optimisation to use openRead and transform
 - Add `invalidateAll`, `clearAll`, and `evictStaleDiskCache` for broader cache control
+- Add `onQuerySelect` to `VoltListener` to expose select duration
 - Fix `_clearCache` concurrent-modification bug
 
 # 1.0.1

@@ -64,28 +64,32 @@ class QueryClient {
     final threshold = staleDuration ?? query.staleDuration ?? this.staleDuration;
     final effectiveQuery = _queryWithPersistedStaleDuration(query, threshold);
 
-    return Rx.merge([
-      persistor.listen(key, effectiveQuery),
-      _createPollingStream(key, effectiveQuery),
-    ]).switchMap<T>((persistedValue) {
-      if (index++ == 0) {
-        if (persistedValue is HasData) {
-          final entry = persistedValue as HasData<T>;
-          if (entry.timestamp.add(threshold).isBefore(DateTime.now().toUtc())) {
-            return _sourceWithExponentialBackoff(key, effectiveQuery).startWith(entry.data);
+    return Rx.merge(
+      [
+        persistor.listen(key, effectiveQuery),
+        _createPollingStream(key, effectiveQuery),
+      ],
+    ).switchMap<T>(
+      (persistedValue) {
+        if (index++ == 0) {
+          if (persistedValue is HasData) {
+            final entry = persistedValue as HasData<T>;
+            if (entry.timestamp.add(threshold).isBefore(DateTime.now().toUtc())) {
+              return _sourceWithExponentialBackoff(key, effectiveQuery).startWith(entry.data);
+            } else {
+              return Stream.value(entry.data);
+            }
+          } else if (persistedValue is NoData) {
+            return _sourceWithExponentialBackoff(key, effectiveQuery);
           } else {
-            return Stream.value(entry.data);
+            throw 'Unexpected value: $persistedValue';
           }
-        } else if (persistedValue is NoData) {
-          return _sourceWithExponentialBackoff(key, effectiveQuery);
-        } else {
-          throw 'Unexpected value: $persistedValue';
+        } else if (persistedValue is HasData) {
+          return Stream.value((persistedValue as HasData<T>).data);
         }
-      } else if (persistedValue is HasData) {
-        return Stream.value((persistedValue as HasData<T>).data);
-      }
-      return const Stream.empty();
-    });
+        return const Stream.empty();
+      },
+    );
   }
 
   /// Prefetches and caches the result of a query.
@@ -157,9 +161,9 @@ class QueryClient {
     }
     return _conflateStream.conflateByKey(
       key,
-      () => Stream.periodic(
-        pollingDuration,
-      ).switchMap((value) => _sourceAndPersist(key, query).asStream()).listen(null),
+      () => Stream.periodic(pollingDuration)
+          .switchMap((value) => _sourceAndPersist(key, query).asStream())
+          .listen(null),
       listener,
     );
   }
@@ -170,26 +174,25 @@ class QueryClient {
     Duration? retryDuration,
   }) {
     final localRetryDuration = retryDuration ?? Duration.zero;
-    return Rx.timer(key, localRetryDuration).asyncMap((_) => _sourceAndPersist(key, query)).flatMap(
-      (result) {
-        if (result is _Success || result is _NoChange) {
-          return const Stream.empty();
-        } else if (result is _Failure) {
-          return _sourceWithExponentialBackoff(
-            key,
-            query,
-            retryDuration: Duration(
-              seconds: (localRetryDuration.inSeconds * 1.5).round().clamp(
-                    _minRetrySecondDuration,
-                    _maxRetrySecondDuration,
-                  ),
-            ),
-          );
-        } else {
-          throw 'Unexpected value: $result';
-        }
-      },
-    );
+    return Rx.timer(key, localRetryDuration)
+        .asyncMap((_) => _sourceAndPersist(key, query))
+        .flatMap((result) {
+      if (result is _Success || result is _NoChange) {
+        return const Stream.empty();
+      } else if (result is _Failure) {
+        return _sourceWithExponentialBackoff(
+          key,
+          query,
+          retryDuration: Duration(
+            seconds: (localRetryDuration.inSeconds * 1.5)
+                .round()
+                .clamp(_minRetrySecondDuration, _maxRetrySecondDuration),
+          ),
+        );
+      } else {
+        throw 'Unexpected value: $result';
+      }
+    });
   }
 
   Future<_VoltResult<T>> _sourceAndPersist<T>(String key, VoltQuery<T> query) async {
@@ -199,37 +202,46 @@ class QueryClient {
     } catch (e, stackTrace) {
       listener?.onNetworkError();
       if (kDebugMode) {
-        _logger.logInfo('Failed to fetch from queryFn: $key', error: e, stackTrace: stackTrace);
+        _logger.logInfo(
+          'Failed to fetch from queryFn: $key',
+          error: e,
+          stackTrace: stackTrace,
+        );
       }
       return _Failure(e);
     }
   }
 
   Future<(T, bool)> _sourceAndPersistOrThrow<T>(String key, VoltQuery<T> query) async {
-    return await _conflateFuture.conflateByKey(key, () async {
-      var json = await query.queryFn!();
-      listener?.onNetworkHit();
-      // deserialize it before persisting it, in case source returns something unexpected
-      final dynamic data;
-      try {
-        final useCompute = query.useComputeIsolate && !kDebugMode;
-        final start = DateTime.now();
-        data = useCompute ? await compute(query.select, json) : query.select(json);
-        final end = DateTime.now();
-        listener?.onQuerySelect(query, end.difference(start));
-      } catch (error, stackTrace) {
-        listener?.onDeserializationError();
-        if (isDebug) {
-          _logger.logInfo('Failed to deserialize data from source: $json', stackTrace: stackTrace);
-        } else {
-          _logger.logInfo(error, stackTrace: stackTrace);
+    return await _conflateFuture.conflateByKey(
+      key,
+      () async {
+        var json = await query.queryFn!();
+        listener?.onNetworkHit();
+        // deserialize it before persisting it, in case source returns something unexpected
+        final dynamic data;
+        try {
+          final useCompute = query.useComputeIsolate && !kDebugMode;
+          final start = DateTime.now();
+          data = useCompute ? await compute(query.select, json) : query.select(json);
+          final end = DateTime.now();
+          listener?.onQuerySelect(query, end.difference(start));
+        } catch (error, stackTrace) {
+          listener?.onDeserializationError();
+          if (isDebug) {
+            _logger.logInfo('Failed to deserialize data from source: $json',
+                stackTrace: stackTrace);
+          } else {
+            _logger.logInfo(error, stackTrace: stackTrace);
+          }
+          rethrow;
         }
-        rethrow;
-      }
 
-      final persisted = await persistor.put<T>(key, query, data as T, json);
-      return (data, persisted);
-    }, listener);
+        final persisted = await persistor.put<T>(key, query, data as T, json);
+        return (data, persisted);
+      },
+      listener,
+    );
   }
 
   VoltQuery<T> _queryWithPersistedStaleDuration<T>(

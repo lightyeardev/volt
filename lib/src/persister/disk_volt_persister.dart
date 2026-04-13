@@ -24,21 +24,30 @@ class FileVoltPersistor implements VoltPersistor {
     listener?.onMemoryCacheEviction,
   );
   static final lock = KeyedLock();
-  FileVoltPersistor({this.listener});
+  FileVoltPersistor({
+    this.listener,
+  });
 
   @override
   Stream<VoltPersistorResult<T>> listen<T>(String keyHash, VoltQuery<T> query) {
     final relativePath = _getRelativeFilePathWithFileName(keyHash, query.scope);
-    return Rx.concat([
-      Stream.fromFuture(_readFile(relativePath, query)),
-      observer
-          .watch(relativePath)
-          .asyncMap((_) => _readFile(relativePath, query, reportStats: false)),
-    ]);
+    return Rx.concat(
+      [
+        Stream.fromFuture(_readFile(relativePath, query)),
+        observer
+            .watch(relativePath)
+            .asyncMap((_) => _readFile(relativePath, query, reportStats: false)),
+      ],
+    );
   }
 
   @override
-  Future<bool> put<T>(String keyHash, VoltQuery<T> query, T dataObj, dynamic dataJson) async {
+  Future<bool> put<T>(
+    String keyHash,
+    VoltQuery<T> query,
+    T dataObj,
+    dynamic dataJson,
+  ) async {
     final timestamp = DateTime.now().toUtc();
     final data = HasData(dataObj, timestamp, query.scope);
     final relativePath = _getRelativeFilePathWithFileName(keyHash, query.scope);
@@ -50,11 +59,24 @@ class FileVoltPersistor implements VoltPersistor {
     cache[relativePath] = data;
 
     if (equals) {
-      unawaited(_writeMetadataFile(relativePath, data, query));
+      unawaited(
+        _writeMetadataFile(
+          relativePath,
+          data,
+          query,
+        ),
+      );
       return false;
     }
 
-    unawaited(_writeFile<T>(relativePath, dataJson, data, query));
+    unawaited(
+      _writeFile<T>(
+        relativePath,
+        dataJson,
+        data,
+        query,
+      ),
+    );
     observer.onFileChanged(relativePath);
 
     return true;
@@ -103,9 +125,9 @@ class FileVoltPersistor implements VoltPersistor {
         await file.create(recursive: true);
       }
 
-      await Stream.value(
-        json,
-      ).transform(const JsonEncoder().fuse(const Utf8Encoder())).pipe(file.openWrite());
+      await Stream.value(json)
+          .transform(const JsonEncoder().fuse(const Utf8Encoder()))
+          .pipe(file.openWrite());
 
       await _writeMetadataFileUnlocked(relativePath, data, query);
     });
@@ -121,7 +143,9 @@ class FileVoltPersistor implements VoltPersistor {
     }
 
     await lock.synchronized(
-        relativePath, () => _writeMetadataFileUnlocked(relativePath, data, query));
+      relativePath,
+      () => _writeMetadataFileUnlocked(relativePath, data, query),
+    );
   }
 
   Future<void> _writeMetadataFileUnlocked(
@@ -133,13 +157,11 @@ class FileVoltPersistor implements VoltPersistor {
     if (!(await metadataFile.exists())) {
       await metadataFile.create(recursive: true);
     }
-    await metadataFile.writeAsString(
-      jsonEncode({
-        'queryKey': query.queryKey,
-        'timestamp': data.timestamp.toIso8601String(),
-        'staleDurationMs': query.staleDuration?.inMilliseconds,
-      }),
-    );
+    await metadataFile.writeAsString(jsonEncode({
+      'queryKey': query.queryKey,
+      'timestamp': data.timestamp.toIso8601String(),
+      'staleDurationMs': query.staleDuration?.inMilliseconds,
+    }));
   }
 
   Future<VoltPersistorResult<T>> _readFile<T>(
@@ -211,10 +233,12 @@ class FileVoltPersistor implements VoltPersistor {
 
   Future<void> clear(List<String?> scopes) async {
     await Future.wait(
-      scopes.map((scope) async {
-        await _clearDirectory(scope);
-        _clearCache(scope);
-      }),
+      scopes.map(
+        (scope) async {
+          await _clearDirectory(scope);
+          _clearCache(scope);
+        },
+      ),
     );
   }
 

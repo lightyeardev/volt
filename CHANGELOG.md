@@ -1,6 +1,8 @@
 # 1.0.2
 
 - Revert 1.0.1 optimisation to use openRead and transform
+- Add `invalidateAll`, `clearAll`, and `evictStaleDiskCache` for broader cache control
+- Fix `_clearCache` concurrent-modification bug
 
 # 1.0.1
 
